@@ -1,0 +1,9 @@
+Log file created at: 2024/02/26 21:59:20
+Running on machine: robo-NUC7i5BNK
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0226 21:59:20.941633 25262 MVCameraBase.cpp:99] Device:(name:MS-SUA133GC-T1V sn:043162020212)Lost
+W0226 21:59:21.801059 25262 MVCameraBase.cpp:119] Device:(name:MS-SUA133GC-T1V sn:043162020212)ReConnected, TolCount:1
+W0226 22:03:54.082639 25262 MVCameraBase.cpp:99] Device:(name:MS-SUA133GC-T1V sn:043162020212)Lost
+W0226 22:03:54.683823 25262 MVCameraBase.cpp:119] Device:(name:MS-SUA133GC-T1V sn:043162020212)ReConnected, TolCount:2
+W0226 22:04:59.277105 25262 MVCameraBase.cpp:99] Device:(name:MS-SUA133GC-T1V sn:043162020212)Lost
+W0226 22:05:12.407001 25262 MVCameraBase.cpp:119] Device:(name:MS-SUA133GC-T1V sn:043162020212)ReConnected, TolCount:3

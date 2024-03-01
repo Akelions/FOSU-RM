@@ -1,0 +1,5 @@
+Log file created at: 2023/07/24 16:30:38
+Running on machine: rm-NUC7i5BNK
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0724 16:30:38.742695  1700 MVCameraBase.cpp:99] Device:(name:MV-SUA133GC#0 sn:042090320687)Lost
+W0724 16:30:42.615590  1700 MVCameraBase.cpp:119] Device:(name:MV-SUA133GC#0 sn:042090320687)ReConnected, TolCount:1

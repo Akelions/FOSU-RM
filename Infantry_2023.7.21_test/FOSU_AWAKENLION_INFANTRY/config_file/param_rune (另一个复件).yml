@@ -1,0 +1,28 @@
+%YAML:1.0
+---
+rune_center_gray_thre_min: 53
+rune_center_gray_thre_max: 255
+rune_center_len_min: 20
+rune_center_len_max: 81
+rune_center_light_hw_radio_min: 91
+rune_center_light_hw_radio_max: 138
+rune_center_light_area_min: 48
+rune_center_light_area_max: 233
+rune_center_area_radio_min: 60
+rune_center_area_radio_max: 88
+rune_center_center_distance_min: 62
+rune_center_center_distance_max: 85
+rune_activating_height: 9.4339809417724609e+00
+rune_activating_width: 2.4698177337646484e+01
+rune_activating_len_min: 28
+rune_activating_len_max: 93
+rune_activating_light_hw_radio_min: 130
+rune_activating_light_hw_radio_max: 277
+rune_activating_light_area_min: 96
+rune_activating_light_area_max: 404
+rune_activating_area_radio_min: 65
+rune_activating_area_radio_max: 85
+rune_activating_parent_area_min: 526
+rune_activating_parent_area_max: 1318
+rune_activating_parent_hw_ratio_min: 190
+rune_activating_parent_hw_ratio_max: 241
