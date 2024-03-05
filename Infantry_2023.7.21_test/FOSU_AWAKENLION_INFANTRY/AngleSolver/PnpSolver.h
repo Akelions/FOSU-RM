@@ -48,7 +48,7 @@ public:
      * @author 梁尧森
      * @date   2018.9.21
      */
-    bool getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec,Eigen::Vector3d &rvec);
+    bool getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec);
 
     /**
      * @brief  solvePnP

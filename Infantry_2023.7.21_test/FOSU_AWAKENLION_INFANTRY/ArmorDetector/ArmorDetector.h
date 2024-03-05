@@ -17,17 +17,43 @@
 using namespace armor_detector;
 
 
-struct MultiValueMap {
+    enum ArmorType
+    {
+        BLUE_SMALL,
+        BLUE_BIG,
+        RED_SMALL,
+        RED_BIG,
+        GRAY_SMALL,
+        GRAY_BIG,
+        PURPLE_SMALL,
+        PURPLE_BIG
+    };
+    
+    struct MultiValueMap {
+        int cls;
+        std::vector<ArmorObject> same_id_objects;
+    };
 
-    int cls;
+class DetectorTool {
+public:
+    DetectorTool();
+    DetectorTool(std::vector<ArmorObject> objects);
 
-    std::vector<ArmorObject> same_id_objects;
+    bool bestArmor(std::vector<ArmorObject> objects, ArmorObject best_object);
+    void detectorArmor(vector<ArmorObject> objects);
+
+    std::vector<ArmorObject> objects;
+    std::unordered_map<int,MultiValueMap> cars_map;
+    bool Blue_or_Red=0;
+
+
 
 };
 
 
-bool bestArmor(std::vector<ArmorObject> objects, ArmorObject best_object);
-void detectorArmor(Mat src, ArmorDetector ad, vector<ArmorObject> objects);
+
+
+
 
 
 

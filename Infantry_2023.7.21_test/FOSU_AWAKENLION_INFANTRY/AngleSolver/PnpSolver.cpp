@@ -182,12 +182,13 @@ void AngleSolver::setTargetSize(double width, double height)
     point3d.push_back(cv::Point3f(half_x, -half_y, 0));
 }
 
-bool AngleSolver::getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec,Eigen::Vector &rvec)
+bool AngleSolver::getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec)
 {
     //根据检测出的目标在图像中的二维坐标，算出旋转矩阵与位移向量
-    solvePnP4Points(target2d,position_in_camera,rvec);
+    Eigen::Vector3d rvec;
+    solvePnP4Points(target2d,tvec,rvec);
 
-    tvec<<position_in_camera.at<double>(0, 0),position_in_camera.at<double>(1, 0),position_in_camera.at<double>(2, 0);
+    //tvec<<position_in_camera.at<double>(0, 0),position_in_camera.at<double>(1, 0),position_in_camera.at<double>(2, 0);
 //    // 相机坐标转换到PTZ坐标
 //    tranformationCamera2PTZ(position_in_camera, position_in_ptz);
 //    // 根据目标在PTZ坐标中的位置，计算偏移角度，使枪管瞄准目标
@@ -228,7 +229,7 @@ void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
     angle_y = angle_y * 180.0 / PI;
 }
 
-void AngleSolver::solvePnP4Points(const std::vector<cv::Point2f> &points2d, cv::Mat &trans,cv::Mat &rvec)
+void AngleSolver::solvePnP4Points(const cv::Point2f *points2d, Eigen::Vector3d &trans,Eigen::Vector3d &rvec)
 {
     cv::solvePnP(point3d, points2d, cam_matrix, distortion_coeff, rvec, trans/*, true, CV_P3P*/); //自瞄
 }
