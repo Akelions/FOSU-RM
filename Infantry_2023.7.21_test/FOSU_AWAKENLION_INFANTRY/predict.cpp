@@ -15,9 +15,10 @@ PredictTool::PredictTool(AngleSolver angle_solver,double moto_pitch,double moto_
 
 bool PredictTool::solveCarRadio()
 {
+    //长度单位为cm
     if(car_radio==0){
         if(object_addr!=nullptr){
-            if(cars_map[&object_addr.cls].second.same_id_object.size()==2){
+            if(/*cars_map[&object_addr.cls].second.same_id_object.size()==2*/0){
                 ArmorObject obj1;
                 ArmorObject obj2;
                 if(&cars_map[car_cls].second.same_id_object[0]==object_addr){
@@ -85,15 +86,16 @@ bool PredictTool::solveCarRadio()
                 double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
                 this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
 
-                int sum=0;
-                for(int i=0;i<6;i++){
-                    if(this->*(cars_radio+i)==0){
-                        continue;
-                    }
-                    this->car_radio+=this->*(cars_radio+i);
-                    sum++;
-                }
-                this->car_radio/=sum;
+                // int sum=0;
+                // for(int i=0;i<6;i++){
+                //     if(this->*(cars_radio+i)==0){
+                //         continue;
+                //     }
+                //     this->car_radio+=this->*(cars_radio+i);
+                //     sum++;
+                // }
+                // this->car_radio/=sum;
+                this->car_radio=300.0;
 
                 double car_tvec_z= tvec1(0,2)+car_radio*sin(car_angle);
                 double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
@@ -109,7 +111,7 @@ bool PredictTool::solveCarRadio()
     }
     else{
             if(object_addr!=nullptr){
-                if(cars_map[&object_addr.cls].second.same_id_object.size()==2){
+                if(/*cars_map[&object_addr.cls].second.same_id_object.size()==2*/0){
                 ArmorObject obj1;
                 ArmorObject obj2;
                 if(&cars_map[car_cls].second.same_id_object[0]==object_addr){

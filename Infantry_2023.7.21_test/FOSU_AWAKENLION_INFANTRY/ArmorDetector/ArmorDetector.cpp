@@ -56,7 +56,7 @@ bool DetectorTool::bestArmor(ArmorObject *best_object)
 
     else{
         for(auto car:this->cars_map){
-            if(car.first==last_object.cls){
+            if(/*car.first==&last_object.cls*/0){
                 if(car.second.same_id_objects.size()==1){
                     best_object=car.second.same_id_objects[0];
                     last_object=&best_object;
@@ -75,17 +75,27 @@ bool DetectorTool::bestArmor(ArmorObject *best_object)
             }
             else{
                 for(auto object:car.second.same_id_objects){
-                    if(max_area<object.area){
-                        max_area=object.area;
-                        max_area_armor=&object;
-                    }    
+                    // if(max_area<object.area){
+                    //     max_area=object.area;
+                    //     max_area_armor=&object;
+                    // }
+                        cv::Point2f armor_center=cv::Point2f((object.apex[0].x+object.apex[2].x)/2,(object.apex[0].y+object.apex[2].y)/2);
+                        double camera_point_dist=POINT_DIST(armor_center,CAMERA_CENTER);
+                        if(min_dist>camera_point_dist){
+                            min_dist=camera_point_dist;
+                            min_dist_armor=&object;
+                        }       
                 }
+
+
             }
 
         }
 
-        best_object=max_area_armor;
-        last_object=max_area_armor;
+        // best_object=max_area_armor;
+        // last_object=max_area_armor;
+        best_object=min_dist_armor;
+        last_object=min_dist_armor;
         return 1;
     }
     

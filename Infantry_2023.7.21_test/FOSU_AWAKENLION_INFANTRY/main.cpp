@@ -21,7 +21,7 @@ ArmorObject *armor_object;
 AngleSolver angle_solver;
 std::unordered_map<int,MultiValueMap> cars_map;
 // rune_object;
-double cars_radio[6]={0,0,0,0,0,0};
+double cars_radio[7]={0,0,0,0,0,0,0};
 
 
 PackData pack_data;
@@ -61,9 +61,9 @@ void detectThread(cv::Mat src,ArmorObject *object,AngleSolver &angle_solver,std:
     DetectorTool detector_tool();
             //获取裁判系统敌方装甲板颜色
        if(unpack_data->getStm2PcMesg()->stm32_info_data.enemy_color == 1)
-           detector_tool.enemy_color = red;
+           detector_tool.Blue_or_Red = 1;
        else if(unpack_data->getStm2PcMesg()->stm32_info_data.enemy_color == 2)
-           detector_tool.enemy_color = blue;
+           detector_tool.Blue_or_Red = 0;
        // 接收电控发送的模式切换(比赛前切记打开)
        if(!std::isnan(unpack_data->getStm2PcMesg()->stm32_info_data.task_mode))
            main_setting->main_mode = unpack_data->getStm2PcMesg()->stm32_info_data.task_mode;
