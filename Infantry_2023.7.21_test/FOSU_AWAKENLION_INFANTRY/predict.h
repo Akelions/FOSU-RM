@@ -5,17 +5,19 @@
 #include <queue>
 #include"ArmorDetector/inference_api2.hpp"
 #include"ArmorDetector/armor_detector.h"
+#include"RuneDetector/inference_api2.hpp"
 #include"AngleSolver/PnpSolver.h"
 #include<iostream>
 #include<opencv2/opencv.hpp>
 #include<Eigen/Eigen>
 
 using namespace armor_detector;
+using namespace buff_detector;
 
-class PredictTool
+class ArmorPredictTool
 {
 public:
-    PredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,std::unordered_map<int,MultipleValue>cars_map,double runnig_time);
+    ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,std::unordered_map<int,MultipleValue>cars_map,double runnig_time);
 
     bool findSameCls();
     bool solveCarRadio();
@@ -61,5 +63,24 @@ private:
 
 
 };
+class RunePredictTool{
 
+public:
+    RunePredictTool(AngleSolver angle_solver,BuffObject object,double moto_pitch,double moto_yaw);
+    void setRuneCoordinary();
+
+    cv::Point2f rune_center;
+    cv::Point2f cur_pos_center;
+    std::vector<cv::Point2f> cur_pos_points;
+    double pre_angle;
+    std::vector<cv::Point2f> pre_cur_pos_points;
+    AngleSolver angle_solver;
+    double moto_pitch;
+    double moto_yaw;
+    
+    std::vector<double> angles;
+
+    Armor_Kalman kalman;
+
+};
 #endif // PREDICT_H

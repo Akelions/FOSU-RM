@@ -1,4 +1,5 @@
 #include "RuneDetector/RuneDetector.h"
+#include "RuneDetector.h"
 
 RuneHitLogic::RuneHitLogic(RuneSettings *rune_settings, MainSettings *main_settings, bool is_clockwise):
                            RuneDetector(rune_settings, main_settings, is_clockwise)
@@ -891,53 +892,6 @@ void RuneHitLogic::bigRuneHitProc_2024(cv::Mat src, AngleSolver &angle_solver,do
                 std::cout << "yaw_code_angle: " << getYawAbsAngle() << std::endl;
 #endif // DEBUG_MODE
 
-//                if (frame_count == 0)
-//                {
-//                    center_capacity.clear();
-//                    rotation_capacity.clear();
-
-//                    cv::RotatedRect center_rect(getRuneCenter(), cv::Size(15, 15), 0);
-//                    getNormalShiftAngle(center_rect, angle_solver, 1);
-//                    center_point_3d = calCurPosCoordinate(pit_abs_angle, yaw_abs_angle);
-
-//                    center_capacity.push_back(center_point_3d);
-//                    frame_count++;
-//                }
-//                else if (frame_count < FRAME_FILTER_NUM)
-//                {
-//                    cv::RotatedRect center_rect(getRuneCenter(), cv::Size(15, 15), 0);
-//                    getNormalShiftAngle(center_rect, angle_solver, 1);
-//                    center_point_3d = calCurPosCoordinate(pit_abs_angle, yaw_abs_angle);
-
-//                    angle_diff = angle_recent - angle_old;
-//                    setRuneRotDirection();//方向的稳定性待检测
-
-//                    center_capacity.push_back(center_point_3d);
-//                    rotation_capacity.push_back(getRotation());
-//                    frame_count++;
-//                }
-//                else if (frame_count == FRAME_FILTER_NUM)
-//                {
-
-//                    cv::RotatedRect center_rect(getRuneCenter(), cv::Size(15, 15), 0);
-//                    getNormalShiftAngle(center_rect, angle_solver, 1);
-//                    center_point_3d = calCurPosCoordinate(pit_abs_angle, yaw_abs_angle);
-
-//                    angle_diff = angle_recent - angle_old;
-
-//                    setRuneRotDirection();//方向的稳定性待检测
-
-//                    center_capacity.push_back(center_point_3d);
-//                    rotation_capacity.push_back(getRotation());
-
-//                    center_point_3d = selectRuneCenter3d(); //选出中心
-//                    updateRuneRotDirection(selectRuneRotation()); //选出方向
-
-
-//                    frame_count++;
-//                }
-//                else
-//                {
                 double v;
 
                     if(!std::isnan(unpack_data->getStm2PcMesg()->stm32_info_data.bullet_level) && unpack_data->getStm2PcMesg()->stm32_info_data.bullet_level > 0)
@@ -1016,24 +970,6 @@ void RuneHitLogic::bigRuneHitProc_2024(cv::Mat src, AngleSolver &angle_solver,do
 
                         rotated_angle=std::abs(state[0]);
 
-//#ifdef DEBUG_MODE
-//                            cv::Point2f point_debug;
-//                            double r=DetectRuneCenter::dianju(rot_rect.center,rune_center);
-//                            if(is_clockwise==1){
-//                                point_debug.x=(this->rot_rect.center.x-rune_center.x)*cos(rotated_angle)*predict_t-(this->rot_rect.center.y-rune_center.y)*sin(rotated_angle)*predict_t+rune_center.x;
-//                                point_debug.y=((this->rot_rect.center.y-rune_center.y)*cos(rotated_angle)*predict_t+(this->rot_rect.center.x-rune_center.x)*sin(rotated_angle)*predict_t)+rune_center.y;
-//                            }
-//                            else{
-//                                point_debug.x=(this->rot_rect.center.x-rune_center.x)*-cos(rotated_angle)*predict_t-(this->rot_rect.center.y-rune_center.y)*-sin(rotated_angle)*predict_t+rune_center.x;
-//                                point_debug.y=((this->rot_rect.center.y-rune_center.y)*-cos(rotated_angle)*predict_t+(this->rot_rect.center.x-rune_center.x)*-sin(rotated_angle)*predict_t)+rune_center.y;
-//                            }
-//                            cv::namedWindow("predict_show",cv::WINDOW_FREERATIO);
-//                            cv::Mat predict_show=src.clone();
-//                            cv::circle(predict_show,point_debug,2,cv::Scalar(255,255,0),3);
-//                            cv::imshow("predict_show",predict_show);
-
-//#endif // DEBUG_MODE
-
                         Eigen::AngleAxisd y_rotated(3.14,Eigen::Vector3d(0,1,0));
 
                         Eigen::Matrix3d y_rotated_Matrix=y_rotated.matrix();
@@ -1082,13 +1018,6 @@ void RuneHitLogic::bigRuneHitProc_2024(cv::Mat src, AngleSolver &angle_solver,do
                         pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw = moto_move_yaw;   // 获取偏航角
                         pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid = 1;
 
-
-                        //predictShiftWithCompansate(rot_rect, angle_solver, pack_data,t1_param, rotated_angle, gc);
-                        //pack_data->process(serial);
-
-
-
-                 //}
                 }
                 else{
                     pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch = 0;   // 获取俯仰角
@@ -1149,3 +1078,4 @@ void RuneHitLogic::staticRuneHitProc(cv::Mat src, AngleSolver &angle_solver,
 {
     std::cout<<"Now you aim by your hand!!!!!!"<<endl;
 }
+
