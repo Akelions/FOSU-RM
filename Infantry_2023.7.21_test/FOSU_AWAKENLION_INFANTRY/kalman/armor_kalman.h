@@ -8,7 +8,7 @@ using namespace std;
 class Armor_Kalman {
 
 private:
-    static Eigen::Vector2d x_k1; // k-1时刻的滤波值，即是k-1时刻的值
+    Eigen::Vector2d x_k1; // k-1时刻的滤波值，即是k-1时刻的值
     Eigen::Matrix2d K;    // Kalman增益
     Eigen::Matrix2d A;    // 转移矩阵
 //    Eigen::Matrix3d A_d;    // 转移矩阵的微分
@@ -16,7 +16,7 @@ private:
     Eigen::Matrix2d R;    // 预测过程噪声偏差的方差
     Eigen::Vector2d Q;    // 测量噪声偏差，(系统搭建好以后，通过测量统计实验获得)
 //    Eigen::Vector3d one;
-    static Eigen::Matrix2d P;    // 估计误差协方差
+    Eigen::Matrix2d P;    // 估计误差协方差
 
     double t;
 public:
@@ -63,7 +63,7 @@ public:
 //#ifdef DEBUG_MODE
 //        cout<<"x_k1 first:"<<x_k1<<endl;
 //#endif
-        Eigen::Vector2d p_x_k = A * x_k1 +Q;   //x的先验估计由上一个时间点的后验估计值和输入信息给出
+        Eigen::Vector2d p_x_k = A * x_k1 + Q;   //x的先验估计由上一个时间点的后验估计值和输入信息给出
 //#ifdef DEBUG_MODE
 //        cout<<"p_x_k:"<<p_x_k<<endl;
 //#endif

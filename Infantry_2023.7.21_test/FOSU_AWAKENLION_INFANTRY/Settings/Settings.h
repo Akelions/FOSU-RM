@@ -32,6 +32,7 @@
 #define ARMS 1          // 当前PC所属机器人编号
 #if (ARMS == 1)
 #define MODEL_PATH ""
+#define MODEL_PATH_BUFF ""
 #define PARAM_OTHER_PATH "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_other.yml"  //全局配置文件路径
 #define PARAM_CAMERA_PATH "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_camera.yml"  //装甲板配置文件路径
 #define PARAM_CALIBRATION_752 "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/calibration/Camera752-infantry.xml"  //相机参数

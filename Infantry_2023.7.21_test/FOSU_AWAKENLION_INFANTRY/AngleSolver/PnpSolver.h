@@ -9,7 +9,6 @@
 
 
 #include "Settings/Settings.h"
-#include "GravityCompensateResolve.h"
 #include<eigen3/Eigen/Dense>
 #include <math.h>
 #include <QTextStream>
