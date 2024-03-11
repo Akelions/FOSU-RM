@@ -1,12 +1,12 @@
 #ifndef PREDICT_H
 #define PREDICT_H
 
-#include"kalman/armor_kalman.h"
+#include"../kalman/armor_kalman.h"
 #include <queue>
-#include"ArmorDetector/inference_api2.hpp"
-#include"ArmorDetector/armor_detector.h"
-#include"RuneDetector/inference_api2.hpp"
-#include"AngleSolver/PnpSolver.h"
+#include"../ArmorDetector/inference_api2.hpp"
+#include"../ArmorDetector/ArmorDetector.h"
+#include"../RuneDetector/inference_api.hpp"
+#include"../AngleSolver/PnpSolver.h"
 #include<iostream>
 #include<opencv2/opencv.hpp>
 #include<Eigen/Eigen>
@@ -18,7 +18,7 @@ class ArmorPredictTool
 {
 public:
     ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
-    std::unordered_map<int,MultipleValue>cars_map,double bullet_speed,double runnig_time);
+    std::unordered_map<int,std::vector<ArmorObject>>cars_map,double bullet_speed,double runnig_time);
 
     bool findSameCls();
     bool solveCarRadio();
@@ -43,7 +43,7 @@ private:
     double *cars_radio;
     double car_radio;
     ArmorObject object_addr;
-    std::unordered_map<int,MultipleValue> cars_map;
+    std::unordered_map<int,std::vector<ArmorObject>> cars_map;
     AngleSolver angle_solver;
 
     

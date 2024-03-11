@@ -5,7 +5,7 @@
 #ifndef __INFANTRY_INFO_H__
 #define __INFANTRY_INFO_H__
 
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 #include "JudgementInfo.h"
 #include "Serial.h"
 typedef enum

@@ -1,4 +1,4 @@
-#include "Camera/MVVideoCapture.h"
+#include "../Camera/MVVideoCapture.h"
 
 #if (USE_VIDEO==0)
 #include <CameraDefine.h>

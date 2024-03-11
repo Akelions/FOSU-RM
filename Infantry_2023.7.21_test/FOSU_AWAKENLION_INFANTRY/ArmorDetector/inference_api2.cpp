@@ -5,7 +5,7 @@
  * @LastEditTime: 2023-06-02 22:42:31
  * @FilePath: /TUP-Vision-2023-Based/src/vehicle_system/autoaim/armor_detector/src/inference/inference_api2.cpp
  */
-#include "ArmorDetector/inference_api2.hpp"
+#include "../ArmorDetector/inference_api2.hpp"
 
 // static constexpr int INPUT_W = 640;    // Width of input
 // static constexpr int INPUT_H = 384;    // Height of input

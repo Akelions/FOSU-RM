@@ -5,7 +5,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 
 #define UP_REG_ID    0xA0  //up layer regional id
 #define DN_REG_ID    0xA5  //down layer regional id

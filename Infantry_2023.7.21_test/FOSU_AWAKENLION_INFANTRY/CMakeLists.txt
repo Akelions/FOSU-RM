@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(FOSU_AWAKENLION)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(ngraph_DIR "/usr/local/runtime/cmake")
 set(InferenceEngine_DIR "/usr/local/runtime/cmake")
 
@@ -19,37 +19,15 @@ include_directories(
         ${OpenCV_LIBRARY_DIRS}
         /lib/
 
-        /home/rm/Infantry_2023.8.27_BallMadle/FOSU_AWAKENLION_INFANTRY/
+        /home/rm/final_code/Infantry_2023.7.21_test/
         
-
-)
-set(HEADERS
-Global_user/global_user.hpp
-Settings/Settings.h
-RuneDetector/RuneDetector.h
-RuneDetector/inference_api2.hpp
-RuneDetector/inference.hpp
-Serial/Protocol.h
-AngleSolver/PnpSolver.h
-Serial/PackData.h
-Serial/JudgementInfo.h
-Serial/InfantryInfo.h
-Gui/Gui.h
-ArmorDetector/ArmorDetector.h
-ArmorDetector/inference_api2.hpp
-Camera/CameraApi.h
-Camera/MVVideoCapture.h
-kalman/armor_kalman.h
-Serial/Serial.h
 
 )
 
 set(SOURCES
 Global_user/global_user.cpp
 Settings/Settings.cpp
-RuneDetector/RuneDetector.cpp
-RuneDetector/inference_api2.cpp
-RuneDetector/inference.cpp
+RuneDetector/inference_api.cpp
 Serial/Serial.cpp
 Serial/Protocol.cpp
 AngleSolver/PnpSolver.cpp
@@ -57,10 +35,29 @@ Serial/PackData.cpp
 Serial/InfantryInfo.cpp
 main.cpp
 Camera/MVVideoCapture.cpp
-Gui/Gui.cpp
 ArmorDetector/ArmorDetector.cpp
 ArmorDetector/inference_api2.cpp
 kalman/armor_kalman.cpp
+predict/predict.cpp
+)
+
+set(HEADERS
+Global_user/global_user.hpp
+Settings/Settings.h
+RuneDetector/inference_api.hpp
+Serial/Protocol.h
+AngleSolver/PnpSolver.h
+Serial/PackData.h
+Serial/JudgementInfo.h
+Serial/InfantryInfo.h
+ArmorDetector/ArmorDetector.h
+ArmorDetector/inference_api2.hpp
+Camera/CameraApi.h
+Camera/MVVideoCapture.h
+kalman/armor_kalman.h
+Serial/Serial.h
+predict/predict.h
+
 )
 
 set(DISTFILES

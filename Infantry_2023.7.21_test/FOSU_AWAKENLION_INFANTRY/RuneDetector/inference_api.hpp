@@ -5,8 +5,8 @@
  * @LastEditTime: 2022-12-27 19:01:00
  * @FilePath: /TUP-Vision-2023-Based/src/vehicle_system/buff/buff_detector/include/inference/inference_api2.hpp
  */
-#ifndef INFERENCE_API2_HPP_
-#define INFERENCE_API2_HPP_
+#ifndef INFERENCE_API_HPP_
+#define INFERENCE_API_HPP_
 
 //C++
 #include <iterator>
@@ -24,7 +24,7 @@
 // #include <fftw3.h>
 // #include <fmt/color.h>
 
-#include "../../global_user/include/global_user/global_user.hpp"
+#include "../Global_user/global_user.hpp"
 
 using namespace global_user;
 namespace buff_detector

@@ -1,7 +1,7 @@
 #ifndef MVVIDEOCAPTURE_H
 #define MVVIDEOCAPTURE_H
 
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 
 #if (USE_VIDEO == 0)
 #include "CameraApi.h"

@@ -97,6 +97,7 @@ struct Debug
     int inaccuracy_point;
     int dc_pitch;
     int dc_yaw;
+    int expore_time;
 
     Debug()
     {
@@ -106,6 +107,7 @@ struct Debug
         predict_point=0;
         dc_pitch=0;
         dc_yaw=0;
+        expore_time=2000;
 
     }
 };

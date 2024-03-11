@@ -24,7 +24,7 @@
 //eigen
 #include <Eigen/Core>
 
-#include "Global_user/global_user.hpp"
+#include "../Global_user/global_user.hpp"
 
 using namespace global_user;
 using namespace cv;

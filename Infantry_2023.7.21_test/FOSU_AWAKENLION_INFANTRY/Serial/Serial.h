@@ -5,7 +5,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 #include "Protocol.h"
 
 #define UNPACK_DATA_BUFFSIZE 200           //接收自主控板信息的缓冲区大小

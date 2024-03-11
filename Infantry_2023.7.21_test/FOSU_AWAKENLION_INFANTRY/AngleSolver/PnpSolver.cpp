@@ -91,20 +91,18 @@ void AngleSolver::setTargetSize(double width, double height)
 bool AngleSolver::getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec)
 {
     //根据检测出的目标在图像中的二维坐标，算出旋转矩阵与位移向量
-    std::vector<cv::Point2d> target2d_temp;
+    std::vector<cv::Point2f> target2d_temp;
     for(int i = 0; i < 4; i++){
         target2d_temp.push_back(target2d[i]);
     }
-    Eigen::Vector3d rvec;
-    solvePnP4Points(target2d_temp,tvec,rvec);
+    solvePnP4Points(target2d_temp,tvec);
     return true;
 }
 
-bool AngleSolver::getAngle(vetector<cv::Point2f> target2d,Eigen::Vector3d &tvec)
+bool AngleSolver::getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec)
 {
     //根据检测出的目标在图像中的二维坐标，算出旋转矩阵与位移向量
-    Eigen::Vector3d rvec;
-    solvePnP4Points(target2d,tvec,rvec);
+    solvePnP4Points(target2d,tvec);
     return true;
 }
 void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
@@ -131,11 +129,11 @@ void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
         theta = atan(xyz[1] / xyz[2]);
         angle_y = -alpha + theta;
     }
-    angle_x = angle_x * 180.0 / PI;
-    angle_y = angle_y * 180.0 / PI;
+    angle_x = angle_x * 180.0 / 3.14159;
+    angle_y = angle_y * 180.0 / 3.1415;
 }
 
-void AngleSolver::solvePnP4Points(std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans,Eigen::Vector3d &rvec)
+void AngleSolver::solvePnP4Points(const std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans)
 {
     cv::Mat tvec_temp;
     cv::Mat rvec_temp;

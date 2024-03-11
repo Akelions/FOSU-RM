@@ -6,7 +6,7 @@
 #define PACKDATA_H
 
 #include "InfantryInfo.h"
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 
 class PackData
 {

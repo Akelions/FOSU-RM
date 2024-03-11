@@ -1,18 +1,16 @@
 #ifndef PNPSOLVER_H
 #define PNPSOLVER_H
 //以下四个参数的大小与正负号与电机和相机的安装方向有关，尽量不要改公式里的符号，或者自己区分
-#define PCBD 6.95  //
-#define PBMD 17 //13.7
+const double PCBD=6.95;  //
+const double PBMD=17; //13.7
 
-#define YCBD 8.0//8
-#define YBMD 8.0//8
+const double YCBD=8.0;//8
+const double YBMD=8.0;//8
 
 
-#include "Settings/Settings.h"
+#include "../Settings/Settings.h"
 #include<eigen3/Eigen/Dense>
 #include <math.h>
-#include <QTextStream>
-#include <QFile>
 
 
 
@@ -47,6 +45,8 @@ public:
      * @author 梁尧森
      * @date   2018.9.21
      */
+
+    bool getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec);
     bool getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec);
 
     /**
@@ -54,7 +54,7 @@ public:
      * @author 参与开发人员
      * @date   2018-
      */
-    void solvePnP4Points(const std::vector<cv::Point2f> &points2d, cv::Mat &trans, cv::Mat &rvec);
+    void solvePnP4Points(const std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans);
 
     /**
      * @brief  相机坐标转换到PTZ坐标
