@@ -9,6 +9,11 @@ AngleSolver::AngleSolver(const char *camera_param_file_name, double z_scale)
     trans_camera2ptz = cv::Mat::zeros(3, 1, CV_64FC1);
     offset_y_barrel_ptz = 0;
 }
+
+AngleSolver::AngleSolver()
+{
+
+}
 void AngleSolver::getTarget2dPoinstion(const cv::RotatedRect &rect,
     std::vector<cv::Point2f> &target2d,
     const cv::Point2f &offset)

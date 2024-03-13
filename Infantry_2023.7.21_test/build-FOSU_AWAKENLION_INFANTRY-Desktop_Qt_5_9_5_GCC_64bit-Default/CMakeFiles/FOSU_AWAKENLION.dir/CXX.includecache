@@ -14,12 +14,6 @@ eigen3/Eigen/Dense
 math.h
 -
 
-/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/ArmorDetector.cpp
-ArmorDetector.h
-/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/ArmorDetector.h
-inference_api2.hpp
-/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/inference_api2.hpp
-
 /home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/ArmorDetector.h
 ../Settings/Settings.h
 /home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Settings/Settings.h
@@ -194,10 +188,6 @@ ArmorDetector/ArmorDetector.h
 RuneDetector/inference_api.hpp
 /home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/RuneDetector/inference_api.hpp
 predict/predict.h
-/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.h
-
-/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.cpp
-predict.h
 /home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.h
 
 /home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.h

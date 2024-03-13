@@ -15,25 +15,6 @@
 
 using namespace buff_detector;
 
-cv::Mat src;
-ArmorObject *armor_object;
-AngleSolver angle_solver(PARAM_CALIBRATION_752);
-std::unordered_map<int,std::vector<ArmorObject>> cars_map;
-double cars_radio[7]={0,0,0,0,0,0,0};
-double running_time=0.0;
-
-BuffObject buff_object;
-
-MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
-
-PackData *pack_data;
-UnpackData *unpack_data;
-UnpackData *p_unpack_data = unpack_data;
-Serial serial(main_settings.port_param);
-
-
-
-
 
 void cameraThread(cv::Mat &src){
 
@@ -45,16 +26,21 @@ void cameraThread(cv::Mat &src){
         }
         else{
             MVVideoCapture::Play();
-            MVVideoCapture::SetExposureTime(false, (main_settings.debug.expore_time)*0.7);
+            MVVideoCapture::SetExposureTime(false, (/*main_settings.debug.expore_time*/1200)*0.7);
             MVVideoCapture::SetLargeResolution(true);
             std::cout << "MVVideoCapture Finished!" << std::endl;
 
             while(1){
                 MVVideoCapture::GetFrame(src);
+                if(src.empty()){
+                    std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+                    continue;
+                }
+                cv::imshow("src",src);
             }
         }
 }
-void detectThread(MainSettings &main_settings,cv::Mat src,ArmorObject *armor_object,BuffObject &buff_object,AngleSolver &angle_solver,std::unordered_map<int,std::vector<ArmorObject>> &cars_map,UnpackData *unpack_data){
+void detectThread(MainSettings &main_settings,cv::Mat src,ArmorObject *armor_object,BuffObject &buff_object,AngleSolver &angle_solver,std::vector<ArmorObject> *cars_map,UnpackData *unpack_data,bool &flag){
 
     ArmorDetector ad;
     std::vector<ArmorObject> objects;
@@ -69,6 +55,12 @@ void detectThread(MainSettings &main_settings,cv::Mat src,ArmorObject *armor_obj
 
 
     while(1){
+
+        if(src.empty()){
+            std::cout<<"src is empty"<<endl;
+            continue;
+        }
+
         //获取裁判系统敌方装甲板颜色
        if(unpack_data->getStm2PcMesg()->stm32_info_data.robot_color == 1)
            detector_tool.Blue_or_Red = 1;
@@ -96,13 +88,14 @@ void detectThread(MainSettings &main_settings,cv::Mat src,ArmorObject *armor_obj
                }
            }
        }
+       flag=true;
 
     }
 }
 
 void predictThread(MainSettings main_settings,AngleSolver angle_solver, double *cars_radio,ArmorObject* object_addr, BuffObject buff_object,
-                   std::unordered_map<int,std::vector<ArmorObject>> cars_map,double running_time,
-                   PackData *pack_data,UnpackData *unpack_data,Serial &serial){
+                   std::vector<ArmorObject> *cars_map,double running_time,
+                   PackData *pack_data,UnpackData *unpack_data,Serial &serial,bool flag){
     Eigen::Vector3d moto_tvec;
     double moto_move_pitch;
     double moto_move_yaw;
@@ -112,6 +105,9 @@ void predictThread(MainSettings main_settings,AngleSolver angle_solver, double *
     
 
     while(1){
+        if(flag==false)
+            continue;
+
         if(main_settings.main_mode == 0){
             double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
             double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
@@ -176,51 +172,72 @@ void predictThread(MainSettings main_settings,AngleSolver angle_solver, double *
 }
 
 
-std::thread ct(cameraThread,ref(src));
-std::thread dt(detectThread,ref(main_settings),ref(src),ref(armor_object),ref(buff_object),ref(angle_solver),ref(cars_map),ref(unpack_data));
-std::thread pt(predictThread,ref(main_settings),ref(angle_solver),ref(cars_radio),ref(armor_object),ref(buff_object),
-               ref(cars_map),ref(running_time),
-               ref(pack_data),ref(unpack_data),ref(serial));
-std::thread st(&UnpackData::processing, p_unpack_data, &serial);
+
 
 
 
 
 int main(){
 
+    cv::Mat src;
+    ArmorObject *armor_object;
+    AngleSolver angle_solver(PARAM_CALIBRATION_752);
+    std::vector<ArmorObject> cars_map[8];
+    double cars_radio[8]={0,0,0,0,0,0,0};
+    double running_time=2.0;
+
+    BuffObject buff_object;
+
+    MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
+    bool flag=false;
+
+    PackData *pack_data;
+    UnpackData *unpack_data;
+    UnpackData *p_unpack_data = unpack_data;
+    Serial serial(main_settings.port_param);
+
+    std::thread ct(cameraThread,ref(src));
+    //std::thread dt(detectThread,ref(main_settings),ref(src),ref(armor_object),ref(buff_object),ref(angle_solver),ref(cars_map),ref(unpack_data),ref(flag));
+    //std::thread pt(predictThread,ref(main_settings),ref(angle_solver),ref(cars_radio),ref(armor_object),ref(buff_object),
+    //               ref(cars_map),ref(running_time),
+    //               ref(pack_data),ref(unpack_data),ref(serial),ref(flag));
+    //std::thread st(&UnpackData::processing, p_unpack_data, &serial);
+
 
 #ifdef DEBUG_MODE
     main_settings.setMainParam(WIN_OTHER);
     main_settings.setCameraParam(WIN_CAMERA);
 #endif
+
       ct.join();
-      dt.join();
-      pt.join();
-      st.join();
+      //dt.join();
+      //pt.join();
+      //st.join();
 
-#ifdef DEBUG_MODE
-      while(1){
-        cv::Mat src_clone=src.clone();
-        if(main_settings.debug.src==1) cv::imshow("src",src);
-        if(main_settings.debug.detect_armor==1){
-          //添加画图处理
-        }
-        if(main_settings.debug.armor_chosen){
-          //添加画图处理
-        }
-        if(main_settings.debug.predict_point){
-          //
-        }
-        if(main_settings.debug.inaccuracy_point){
+//#ifdef DEBUG_MODE
+//      while(1){
+//        cv::Mat src_clone=src.clone();
+//        if(main_settings.debug.src==1) cv::imshow("src",src);
+//        if(main_settings.debug.detect_armor==1){
+//          //添加画图处理
+//        }
+//        if(main_settings.debug.armor_chosen){
+//          //添加画图处理
+//        }
+//        if(main_settings.debug.predict_point){
+//          //
+//        }
+//        if(main_settings.debug.inaccuracy_point){
 
-        }
-        if(main_settings.debug.dc_pitch){
+//        }
+//        if(main_settings.debug.dc_pitch){
 
-        }
-        if(main_settings.debug.dc_yaw){
+//        }
+//        if(main_settings.debug.dc_yaw){
 
-        }
-      }
-#endif
+//        }
+//        cv::waitKey(1);
+//      }
+//#endif
     return 0;
 }

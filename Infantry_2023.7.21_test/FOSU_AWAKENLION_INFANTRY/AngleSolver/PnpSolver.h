@@ -20,6 +20,7 @@ class AngleSolver
 {
 public:
     AngleSolver(const char *camera_param_file_name, double z_scale = 1.0);
+    AngleSolver();
 
     /**
      * @brief  设置相机安装参数

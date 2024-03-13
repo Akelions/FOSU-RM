@@ -34,7 +34,7 @@ public:
     void detectorArmor(vector<ArmorObject> objects);
 
     std::vector<ArmorObject> objects;
-    std::unordered_map<int,std::vector<ArmorObject>> cars_map;
+    std::vector<ArmorObject> cars_map[8];
     bool Blue_or_Red=0;
 
 

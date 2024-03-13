@@ -18,7 +18,7 @@ class ArmorPredictTool
 {
 public:
     ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
-    std::unordered_map<int,std::vector<ArmorObject>>cars_map,double bullet_speed,double runnig_time);
+    std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time);
 
     bool findSameCls();
     bool solveCarRadio();
@@ -42,8 +42,8 @@ private:
     double car_angle;
     double *cars_radio;
     double car_radio;
-    ArmorObject object_addr;
-    std::unordered_map<int,std::vector<ArmorObject>> cars_map;
+    ArmorObject *object_addr;
+    std::vector<ArmorObject> *cars_map;
     AngleSolver angle_solver;
 
     
@@ -68,6 +68,7 @@ private:
 class RunePredictTool{
 
 public:
+    RunePredictTool();
     RunePredictTool(AngleSolver angle_solver,BuffObject object,double moto_pitch,double moto_yaw,double bullet_speed,double running_time);
     bool setRuneCoordinary();
 
@@ -87,11 +88,12 @@ public:
     double moto_pitch;
     double moto_yaw;
     
-    std::queue<double> angles;
+    std::vector<double> angles;
     double pre_angle;
     Armor_Kalman kalman;
 
     Eigen::Vector3d cur_moto_tvec;
+
 
 };
 #endif // PREDICT_H

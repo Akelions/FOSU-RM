@@ -1,35 +1,36 @@
 #include "predict.h"
 
-ArmorPredictTool::ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* Object_addr,
-std::unordered_map<int,MultipleValue>cars_map,double bullet_speed,double runnig_time)
+ArmorPredictTool::ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
+std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time)
 {
     this->cars_radio=cars_radio;
-    this->car_radio=*(cars_radio+object_cls);
+    this->car_radio=*(cars_radio+(*object_addr).cls);
     this->cars_map=cars_map;
     this->angle_solver=angle_solver;
     this->object_addr=object_addr;
     this->moto_pitch=moto_pitch;
     this->moto_yaw=moto_yaw;
 
-    this->running_time=runnig_time;
+    this->running_time=running_time;
     this->bullet_speed=bullet_speed;
 }
 
 bool ArmorPredictTool::solveCarRadio()
 {
     //长度单位为cm
+    int car_cls=(*object_addr).cls;
     if(car_radio==0){
-        if(object_addr!=nullptr){
+        if(object_addr!=NULL){
             if(/*cars_map[&object_addr.cls].second.same_id_object.size()==2*/0){
                 ArmorObject obj1;
                 ArmorObject obj2;
-                if(&cars_map[car_cls].second.same_id_object[0]==object_addr){
-                    obj1=cars_map[car_cls].second.same_id_object[0];
-                    obj2=cars_map[car_cls].second.same_id_object[1];
+                if(&cars_map[car_cls][0]==object_addr){
+                    obj1=cars_map[car_cls][0];
+                    obj2=cars_map[car_cls][1];
                 }
                 else{
-                    obj1=cars_map[car_cls].second.same_id_object[1];
-                    obj2=cars_map[car_cls].second.same_id_object[0];
+                    obj1=cars_map[car_cls][1];
+                    obj2=cars_map[car_cls][0];
                 }
                 Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
                 Eigen::Vector3d tvec_lu2;Eigen::Vector3d tvec_rd2;Eigen::Vector3d moto_t_lu2;Eigen::Vector3d moto_t_rd2;
@@ -39,7 +40,7 @@ bool ArmorPredictTool::solveCarRadio()
                 cv::Point2f rd2[4]={(obj2.apex[2]+obj2.apex[0])/2,(obj2.apex[2]+obj2.apex[1])/2,obj2.apex[2],(obj2.apex[2]+obj2.apex[3])/2};//右下
                 angle_solver.getAngle(lu1,tvec_lu1);
                 angle_solver.getAngle(rd1,tvec_rd1);
-                angle_solver.getAngle(lu2,tvec_ld2);
+                angle_solver.getAngle(lu2,tvec_lu2);
                 angle_solver.getAngle(rd2,tvec_rd2);
                 angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
                 angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
@@ -59,22 +60,22 @@ bool ArmorPredictTool::solveCarRadio()
                 Eigen::Vector3d tvec2_mid;
                 tvec2_mid<<tvec2(0,0),(tvec1(1,0)+tvec2(1,0))/2,tvec2(2,0);
 
-                double 1_k=-1/k1;
-                double 2_k=-1/k2;
+                double k_1=-1/k1;
+                double k_2=-1/k2;
 
-                double car_tvec_z= (1_k*tvec1_mid(2,0)-2_k*tvec2_mid(2,0)-tvec1_mid(0,0)+tvec2_mid(0,0))/(tvec1_mid(2,0)-tvec2_mid(2,0));
-                double car_tvec_x= 1_k*(car_tvec_z-tvec1_mid(2,0))+tvec1_mid(0,0);
+                double car_tvec_z= (k_1*tvec1_mid(2,0)-k_2*tvec2_mid(2,0)-tvec1_mid(0,0)+tvec2_mid(0,0))/(tvec1_mid(2,0)-tvec2_mid(2,0));
+                double car_tvec_x= k_1*(car_tvec_z-tvec1_mid(2,0))+tvec1_mid(0,0);
 
                 this->car_tvec<<car_tvec_x,tvec1_mid(1,0),car_tvec_z;
 
                 double delata_x=car_tvec(0,0)-tvec1_mid(0,0);
                 double delata_z=car_tvec(2,0)-tvec1_mid(2,0);
                 this->car_radio=sqrt(delata_x*delata_x+delata_z*delata_z);
-                this->*(cars_radio+car_cls)= car_radio;
+                this->cars_radio[car_cls]= car_radio;
             }
             else{
 
-                ArmorObject obj1=cars_map[car_cls].second.same_id_object[0];
+                ArmorObject obj1=cars_map[car_cls][0];
                 Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
                 
                 cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
@@ -115,16 +116,16 @@ bool ArmorPredictTool::solveCarRadio()
     }
     else{
             if(object_addr!=nullptr){
-                if(/*cars_map[&object_addr.cls].second.same_id_object.size()==2*/0){
+                if(/*cars_map[&object_addr.cls].size()==2*/0){
                 ArmorObject obj1;
                 ArmorObject obj2;
-                if(&cars_map[car_cls].second.same_id_object[0]==object_addr){
-                    obj1=cars_map[car_cls].second.same_id_object[0];
-                    obj2=cars_map[car_cls].second.same_id_object[1];
+                if(&cars_map[car_cls][0]==object_addr){
+                    obj1=cars_map[car_cls][0];
+                    obj2=cars_map[car_cls][1];
                 }
                 else{
-                    obj1=cars_map[car_cls].second.same_id_object[1];
-                    obj2=cars_map[car_cls].second.same_id_object[0];
+                    obj1=cars_map[car_cls][1];
+                    obj2=cars_map[car_cls][0];
                 }
                 Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
                 Eigen::Vector3d tvec_lu2;Eigen::Vector3d tvec_rd2;Eigen::Vector3d moto_t_lu2;Eigen::Vector3d moto_t_rd2;
@@ -134,7 +135,7 @@ bool ArmorPredictTool::solveCarRadio()
                 cv::Point2f rd2[4]={(obj2.apex[2]+obj2.apex[0])/2,(obj2.apex[2]+obj2.apex[1])/2,obj2.apex[2],(obj2.apex[2]+obj2.apex[3])/2};//右下
                 angle_solver.getAngle(lu1,tvec_lu1);
                 angle_solver.getAngle(rd1,tvec_rd1);
-                angle_solver.getAngle(lu2,tvec_ld2);
+                angle_solver.getAngle(lu2,tvec_lu2);
                 angle_solver.getAngle(rd2,tvec_rd2);
                 angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
                 angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
@@ -156,7 +157,7 @@ bool ArmorPredictTool::solveCarRadio()
             }
             else{
 
-                ArmorObject obj1=cars_map[car_cls].second.same_id_object[0];
+                ArmorObject obj1=cars_map[car_cls][0];
                 Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
                 
                 cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
@@ -180,43 +181,43 @@ bool ArmorPredictTool::solveCarRadio()
                 this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
             }
         }
-        return 1
+        return 1;
     }
 }
 
 bool ArmorPredictTool::predictRotated()
 {
-    static std::queue<double> angles;
-    angles.push(this->car_angle);
+    static std::vector<double> angles;
+    angles.push_back(this->car_angle);
 
-       if(x_store.size()>=3){
-            angles.pop();
+       if(angles.size()>=3){
+            angles.erase(angles.begin());
             Eigen::Vector2d _angle;
             Eigen::Vector2d _anglep;
 
 
-            if(t2<=0) t2=200;
-            _angle << angles[1],(_angle[1]-_angle[0])/t2;
-            _anglep=angle_kalman.update(_angle,t2);
+            if(running_time<=0) running_time=1.0;
+            _angle << angles[1],(angles[1]-angles[0])/running_time;
+            _anglep=angle_kalman.update(_angle,running_time);
 
            this->angle_predict=_anglep(0,0);
-            if(angle_predict<PI/4){
+            if(angle_predict<M_PI/4){
                 if(angle_predict>0){
-                    angle_predict+=PI/2;
+                    angle_predict+=M_PI/2;
                     this->switch_y=1;
                 }
                 else{
-                    angle_predict+=PI;
+                    angle_predict+=M_PI;
                     this->switch_y=0;
                 }
             }
-            else if(angle_predict>PI*3/4){
-                if(angle_predict<PI){
-                    angle_predict-=PI/2;
+            else if(angle_predict>M_PI*3.0/4.0){
+                if(angle_predict<M_PI){
+                    angle_predict-=M_PI/2;
                     this->switch_y=1;
                 }
                 else{
-                    angle_predict-=PI;
+                    angle_predict-=M_PI;
                     this->switch_y=0;
                 }
             }
@@ -226,20 +227,20 @@ bool ArmorPredictTool::predictRotated()
 bool ArmorPredictTool::predictMove()
 {
 
-    static std::queue<double> x_store;
-    static std::queue<double> y_store;
-    static std::queue<double> z_store;
+    static std::vector<double> x_store;
+    static std::vector<double> y_store;
+    static std::vector<double> z_store;
     
-       x_store.push(car_tvec(0,0));
-       y_store.push(car_tvec(1,0));
-       z_store.push(car_tvec(2,0));
+       x_store.push_back(car_tvec(0,0));
+       y_store.push_back(car_tvec(1,0));
+       z_store.push_back(car_tvec(2,0));
 
 
 
        if(x_store.size()>=3){
-        x_store.pop();
-        y_store.pop();
-        z_store.pop();
+        x_store.erase(x_store.begin());
+        y_store.erase(y_store.begin());
+        z_store.erase(z_store.begin());
 
 
            Eigen::Vector2d _X;
@@ -274,8 +275,8 @@ bool ArmorPredictTool::predictMove()
 bool ArmorPredictTool::stateAdd()
 {
     
-    double armor_z=car_predict+car_radio*sin(angle_predict);
-    double armor_x=car_predict+car_radio*cos(angle_predict);
+    double armor_z=car_predict(2,0)+car_radio*sin(angle_predict);
+    double armor_x=car_predict(0,0)+car_radio*cos(angle_predict);
     double armor_y=switch_y?tvec2(1,0):tvec1(1,0);
     tvec_armor<<armor_x,armor_y,armor_z;
 
@@ -335,13 +336,14 @@ bool RunePredictTool::setRuneCoordinary(){
                 angle_solver.coordinary_transformation(moto_pitch,moto_yaw,source_tvec,moto_source_tvec);
                 double cur_dist=sqrt(pow(moto_source_tvec(0,2),2)+pow(moto_source_tvec(0,0),2))/100.0;
 
-                angle_old = angle_recent;
-                angle_recent = angle;
 
-                angles.push(angle_recent);
+                static double angle_recent = angle;
+                static double angle_old = angle_recent;
+
+                angles.push_back(angle_recent);
 
                 if(angles.size()>=4){
-                    angles.pop();
+                    angles.erase(angles.begin());
                     double predict_t;
 
                     if(bullet_speed > 0)
@@ -359,8 +361,8 @@ bool RunePredictTool::setRuneCoordinary(){
                     this->running_time+=predict_t;
 
 
-                    angle_diff=angles[2]-angles[1];
-                    angle_diff2=angles[1]-angles[0];
+                    double angle_diff=angles[2]-angles[1];
+                    double angle_diff2=angles[1]-angles[0];
 
 
 
@@ -387,8 +389,8 @@ bool RunePredictTool::setRuneCoordinary(){
 
 
                     Eigen::Vector2d z_k;
-                    if(t2!=0)
-                        z_k<<angle_diff ,angle_diff / t2;
+                    if(running_time!=0)
+                        z_k<<angle_diff ,angle_diff / running_time;
                     else
                         z_k<<angle_diff ,angle_diff / 1.5;
 
@@ -396,7 +398,7 @@ bool RunePredictTool::setRuneCoordinary(){
                     std::cout<<"z_k:"<<z_k<<endl;
 #endif
 
-                    Eigen::Vector2d state=kalman.update(z_k,t2);        //更新卡尔曼滤波
+                    Eigen::Vector2d state=kalman.update(z_k,running_time);        //更新卡尔曼滤波
                                                       //将角度和时间传入卡尔曼滤波后得到的角速度
                     //kalman_speed=speed_recent;
                     //double kalman_angle_recent=state(0,0);                 //待激活装甲板与中心点角度的滤波值

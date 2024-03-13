@@ -8,24 +8,21 @@ DetectorTool::DetectorTool()
 DetectorTool::DetectorTool(std::vector<ArmorObject> objects)
 {
     this->objects=objects;
-    std::vector<ArmorObject> same_ids[8];
-    for(int i=0;i<8;i++)
-    this->cars_map.insert(std::make_pair<int,std::vector<ArmorObject>>(i,));
-    std::vector<std::vector<ArmorObject>> armors;
     for(auto obj:objects){
             if (Blue_or_Red == 1)
             {
                 if (obj.color == BLUE_SMALL || obj.color == BLUE_BIG || obj.color == PURPLE_SMALL || obj.color == PURPLE_BIG)
                     continue;
+                else{
+                    cars_map[obj.cls].push_back(obj);
+                }
             }
             else if (Blue_or_Red == 0)
             {
                 if (obj.color == RED_SMALL || obj.color == RED_BIG || obj.color == PURPLE_SMALL || obj.color == PURPLE_BIG)
                     continue;
+                cars_map[obj.cls].push_back(obj);
             }
-
-
-
     }
 }
 
@@ -41,9 +38,9 @@ bool DetectorTool::bestArmor(ArmorObject *best_object)
 
     if(last_object==NULL){
 
-            for(auto car:this->cars_map){
-                if(car.second.same_id_objects.size()>0){
-                    for(auto object:car.second.same_id_objects){
+            for(int i=0;i<8;i++){
+                if(this->cars_map[i].size()){
+                    for(auto object:this->cars_map[i]){
                         cv::Point2f armor_center=cv::Point2f((object.apex[0].x+object.apex[2].x)/2,(object.apex[0].y+object.apex[2].y)/2);
                         double camera_point_dist=POINT_DIST(armor_center,CAMERA_CENTER);
                         if(min_dist>camera_point_dist){
@@ -60,26 +57,26 @@ bool DetectorTool::bestArmor(ArmorObject *best_object)
     }
 
     else{
-        for(auto car:this->cars_map){
+        for(int i=0;i<8;i++){
             if(/*car.first==&last_object.cls*/0){
-                if(car.second.size()==1){
-                    best_object=car.second.same_id_objects[0];
-                    last_object=&best_object;
+                if(this->cars_map[i].size()==1){
+                    best_object=&cars_map[i][0];
+                    last_object=best_object;
                     
                 }
-                else if(car.second.same_id_objects[0].area>car.second.same_id_objects[1].area){
-                    best_object=car.second.same_id_objects[0];
-                    last_object=&best_object;
+                else if(this->cars_map[i][0].area>this->cars_map[i][1].area){
+                    best_object=&cars_map[i][0];
+                    last_object=best_object;
                     
                 }
                 else{
-                    best_object=car.second.same_id_objects[1];
-                    last_object=&best_object;
+                    best_object=&cars_map[i][1];
+                    last_object=best_object;
                 }
                 return 1;
             }
             else{
-                for(auto object:car.second.same_id_objects){
+                for(auto object:this->cars_map[i]){
                     // if(max_area<object.area){
                     //     max_area=object.area;
                     //     max_area_armor=&object;
