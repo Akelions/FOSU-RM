@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="FOSU_AWAKENLION"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\;CMake Files\..\..\..\..\usr\local\runtime\;CMake Files\..\..\..\..\usr\local\runtime\cmake\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="FOSU_AWAKENLION">
+				<Option output="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/FOSU_AWAKENLION" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DTBB_PREVIEW_WAITING_FOR_WORKERS=1"/>
+					<Add option="-DIE_THREAD=IE_THREAD_TBB"/>
+					<Add directory="/usr/local/runtime/include/ngraph"/>
+					<Add directory="/usr/local/runtime/include/openvino"/>
+					<Add directory="/lib"/>
+					<Add directory="/home/rm/Infantry_2023.7.21_test"/>
+					<Add directory="/usr/local/runtime/include/ie"/>
+					<Add directory="/usr/local/include/opencv4"/>
+					<Add directory="/usr/local/runtime/include"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 FOSU_AWAKENLION"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="FOSU_AWAKENLION/fast">
+				<Option output="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/FOSU_AWAKENLION" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DTBB_PREVIEW_WAITING_FOR_WORKERS=1"/>
+					<Add option="-DIE_THREAD=IE_THREAD_TBB"/>
+					<Add directory="/usr/local/runtime/include/ngraph"/>
+					<Add directory="/usr/local/runtime/include/openvino"/>
+					<Add directory="/lib"/>
+					<Add directory="/home/rm/Infantry_2023.7.21_test"/>
+					<Add directory="/usr/local/runtime/include/ie"/>
+					<Add directory="/usr/local/include/opencv4"/>
+					<Add directory="/usr/local/runtime/include"/>
+					<Add directory="/usr/include/c++/9"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
+					<Add directory="/usr/include/c++/9/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 FOSU_AWAKENLION/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/AngleSolver/PnpSolver.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/AngleSolver/PnpSolver.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/ArmorDetector.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/ArmorDetector.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/inference_api2.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/ArmorDetector/inference_api2.hpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Camera/CameraApi.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Camera/MVVideoCapture.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Camera/MVVideoCapture.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Global_user/global_user.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Global_user/global_user.hpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/RuneDetector/inference_api.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/RuneDetector/inference_api.hpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/InfantryInfo.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/InfantryInfo.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/JudgementInfo.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/PackData.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/PackData.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/Protocol.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/Protocol.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/Serial.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Serial/Serial.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Settings/Settings.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/Settings/Settings.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/calibration/Camera752-hero1.xml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/calibration/Camera752-infantry.xml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_armor.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_kalman.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_other.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_pid-fantry3.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_pid-fantry5.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_pid-hero1.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_pid-sentry7.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_rune.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/config_file/param_throw_compensate.yml">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/kalman/armor_kalman.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/kalman/armor_kalman.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/main.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.cpp">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/predict/predict.h">
+			<Option target="FOSU_AWAKENLION"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/lib/cmake/opencv4/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/lib/cmake/opencv4/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/lib/cmake/opencv4/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/lib/cmake/opencv4/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/InferenceEngineConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/InferenceEngineConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/OpenVINOConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/OpenVINOConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/OpenVINOTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/../../../../usr/local/runtime/cmake/OpenVINOTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\runtime\cmake\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -28,14 +28,15 @@ using namespace armor_detector;
 class DetectorTool {
 public:
     DetectorTool();
-    DetectorTool(std::vector<ArmorObject> objects);
+    DetectorTool(std::vector<ArmorObject> objects,bool color_num);
 
     bool bestArmor(ArmorObject *best_object);
+    void setColor(int color_num);
     void detectorArmor(vector<ArmorObject> objects);
 
     std::vector<ArmorObject> objects;
     std::vector<ArmorObject> cars_map[8];
-    bool Blue_or_Red=0;
+    bool Blue_or_Red=1;
 
 
 

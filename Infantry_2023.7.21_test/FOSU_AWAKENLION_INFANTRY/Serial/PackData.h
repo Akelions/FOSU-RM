@@ -60,7 +60,7 @@ public:
     {
         if(stm2pc_mesg.stm32_info_data.bullet_level>40||stm2pc_mesg.stm32_info_data.bullet_level<=4){
             stm2pc_mesg.stm32_info_data.bullet_level=26.0;
-            std::cout<<"电控发过来的弹速有误，不能使用"<<std::endl;
+            //std::cout<<"电控发过来的弹速有误，不能使用"<<std::endl;
         }
 //        if(abs(stm2pc_mesg.stm32_info_data.robot_pitch)>=90||abs(stm2pc_mesg.stm32_info_data.robot_pitch)<=0.0001){
 //            stm2pc_mesg.stm32_info_data.robot_pitch=0;

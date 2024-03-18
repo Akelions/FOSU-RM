@@ -1,0 +1,3 @@
+/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/CMakeFiles/rebuild_cache.dir
+/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/CMakeFiles/edit_cache.dir
+/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/CMakeFiles/FOSU_AWAKENLION.dir

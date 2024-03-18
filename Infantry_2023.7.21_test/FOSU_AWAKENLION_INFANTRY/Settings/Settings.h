@@ -32,12 +32,13 @@
 #define ARMS 1          // 当前PC所属机器人编号
 #if (ARMS == 1)
 #define MODEL_PATH "/home/rm/nn_model/best_06_02.xml"
+//#define MODEL_PATH "/home/rm/nn_model/854.onnx"
 #define MODEL_PATH_BUFF "/home/rm/nn_model/buff-05-28-01.xml"
-#define PARAM_OTHER_PATH "/home/rm/final_code/Infantry_2023.7.21_test/config_file/param_other.yml"  //全局配置文件路径
-#define PARAM_CAMERA_PATH "/home/rm/final_code/Infantry_2023.7.21_test/config_file/param_camera.yml"  //装甲板配置文件路径
-#define PARAM_CALIBRATION_752 "/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/calibration/Camera752-infantry.xml"  //相机参数
-#define SAVE_VIDEO_DIR   "/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/save_video/"
-#define SAVE_PIC_DIR   "/home/rm/final_code/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/save_pic/"
+#define PARAM_OTHER_PATH "/home/rm/Infantry_2023.7.21_test/config_file/param_other.yml"  //全局配置文件路径
+#define PARAM_CAMERA_PATH "/home/rm/Infantry_2023.7.21_test/config_file/param_camera.yml"  //装甲板配置文件路径
+#define PARAM_CALIBRATION_752 "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/calibration/Camera752-infantry.xml"  //相机参数
+#define SAVE_VIDEO_DIR   "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/save_video/"
+#define SAVE_PIC_DIR   "/home/rm/Infantry_2023.7.21_test/FOSU_AWAKENLION_INFANTRY/save_pic/"
 
 #endif  // ARMS
 

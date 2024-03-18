@@ -23,40 +23,40 @@ void MainSettings::setMainParam(const char *win_name)
 
 void MainSettings::readOtherParam(const char *param_path)
 {
-    cv::FileStorage fs(param_path, cv::FileStorage::READ);
+//    cv::FileStorage fs(param_path, cv::FileStorage::READ);
 
-    fs["main_mode"] >> this->main_mode;
-    fs["enemy_color"] >> this->enemy_color;
-    fs["src"] >>this->debug.src;
-    fs["detect_armor"]>>this->debug.detect_armor;
-    fs["armor_chosen"]>>this->debug.armor_chosen;
-    fs["predict_point"]>>this->debug.predict_point;
-    fs["inaccuracy_point"]>>this->debug.inaccuracy_point;
-    fs["dc_pitch"]>>this->debug.dc_pitch;
-    fs["dc_yaw"]>>this->debug.dc_yaw;
+//    fs["main_mode"] >> this->main_mode;
+//    fs["enemy_color"] >> this->enemy_color;
+//    fs["src"] >>this->debug.src;
+//    fs["detect_armor"]>>this->debug.detect_armor;
+//    fs["armor_chosen"]>>this->debug.armor_chosen;
+//    fs["predict_point"]>>this->debug.predict_point;
+//    fs["inaccuracy_point"]>>this->debug.inaccuracy_point;
+//    fs["dc_pitch"]>>this->debug.dc_pitch;
+//    fs["dc_yaw"]>>this->debug.dc_yaw;
 
-#ifdef DEBUG_MODE
-    std::cout << "Read other param finished!" << std::endl;
-#endif
-    fs.release();
+//#ifdef DEBUG_MODE
+//    std::cout << "Read other param finished!" << std::endl;
+//#endif
+//    fs.release();
 }
 
 void MainSettings::writeOtherParam(const char *param_path)
 {
-    cv::FileStorage fs(param_path, cv::FileStorage::WRITE);
+//    cv::FileStorage fs(param_path, cv::FileStorage::WRITE);
 
-    fs<<"main_mode" << this->main_mode;
-    fs<<"enemy_color" << this->enemy_color;
-    fs<<"src" << this->debug.src;
-    fs<<"detect_armor"<<this->debug.detect_armor;
-    fs<<"armor_chosen"<<this->debug.armor_chosen;
-    fs<<"predict_point"<<this->debug.predict_point;
-    fs<<"inaccuracy_point"<<this->debug.inaccuracy_point;
-    fs<<"dc_pitch"<<this->debug.dc_pitch;
-    fs<<"dc_yaw"<<this->debug.dc_yaw;
+//    fs<<"main_mode" << this->main_mode;
+//    fs<<"enemy_color" << this->enemy_color;
+//    fs<<"src" << this->debug.src;
+//    fs<<"detect_armor"<<this->debug.detect_armor;
+//    fs<<"armor_chosen"<<this->debug.armor_chosen;
+//    fs<<"predict_point"<<this->debug.predict_point;
+//    fs<<"inaccuracy_point"<<this->debug.inaccuracy_point;
+//    fs<<"dc_pitch"<<this->debug.dc_pitch;
+//    fs<<"dc_yaw"<<this->debug.dc_yaw;
 
-    std::cout << "Sava other param finished!" << std::endl;
-    fs.release();
+//    std::cout << "Sava other param finished!" << std::endl;
+//    fs.release();
 }
 
 void MainSettings::setCameraParam(const char *win_name)

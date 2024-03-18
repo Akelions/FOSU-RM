@@ -19,7 +19,7 @@ include_directories(
         ${OpenCV_LIBRARY_DIRS}
         /lib/
 
-        /home/rm/final_code/Infantry_2023.7.21_test/
+        /home/rm/Infantry_2023.7.21_test
         
 
 )

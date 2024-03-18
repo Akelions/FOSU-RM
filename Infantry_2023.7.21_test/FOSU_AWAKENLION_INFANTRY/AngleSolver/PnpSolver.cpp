@@ -67,14 +67,14 @@ void AngleSolver::rectPnpSolver(const char *camera_param_file_name)
         return;
     }
 
-    //根据目标矩形的宽高设置三维坐标
-    double half_x = width_target / 2.0;
-    double half_y = height_target / 2.0;
+//    //根据目标矩形的宽高设置三维坐标
+//    double half_x = width_target / 2.0;
+//    double half_y = height_target / 2.0;
 
-    point3d.push_back(cv::Point3f(-half_x, -half_y, 0));
-    point3d.push_back(cv::Point3f(half_x, -half_y, 0));
-    point3d.push_back(cv::Point3f(half_x, half_y, 0));
-    point3d.push_back(cv::Point3f(-half_x, half_y, 0));
+//    point3d.push_back(cv::Point3f(-half_x, -half_y, 0));
+//    point3d.push_back(cv::Point3f(half_x, -half_y, 0));
+//    point3d.push_back(cv::Point3f(half_x, half_y, 0));
+//    point3d.push_back(cv::Point3f(-half_x, half_y, 0));
 }
 
 void AngleSolver::setTargetSize(double width, double height)
@@ -87,10 +87,10 @@ void AngleSolver::setTargetSize(double width, double height)
     double half_y = height_target / 2.0;
 
     point3d.clear();
-    point3d.push_back(cv::Point3f(-half_x, -half_y, 0));
     point3d.push_back(cv::Point3f(-half_x, half_y, 0));
-    point3d.push_back(cv::Point3f(half_x, half_y, 0));
+    point3d.push_back(cv::Point3f(-half_x, -half_y, 0));
     point3d.push_back(cv::Point3f(half_x, -half_y, 0));
+    point3d.push_back(cv::Point3f(half_x, half_y, 0));
 }
 
 bool AngleSolver::getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec)
