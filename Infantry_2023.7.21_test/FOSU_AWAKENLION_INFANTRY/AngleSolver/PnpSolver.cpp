@@ -93,21 +93,22 @@ void AngleSolver::setTargetSize(double width, double height)
     point3d.push_back(cv::Point3f(half_x, half_y, 0));
 }
 
-bool AngleSolver::getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec)
+bool AngleSolver::getAngle(cv::Point2f *target2d,Eigen::Vector3d &tvec,Eigen::Vector3d &rvec)
 {
     //根据检测出的目标在图像中的二维坐标，算出旋转矩阵与位移向量
     std::vector<cv::Point2f> target2d_temp;
     for(int i = 0; i < 4; i++){
         target2d_temp.push_back(target2d[i]);
     }
-    solvePnP4Points(target2d_temp,tvec);
+    solvePnP4Points(target2d_temp,tvec,rvec);
     return true;
 }
 
 bool AngleSolver::getAngle(std::vector<cv::Point2f> target2d,Eigen::Vector3d &tvec)
 {
     //根据检测出的目标在图像中的二维坐标，算出旋转矩阵与位移向量
-    solvePnP4Points(target2d,tvec);
+    Eigen::Vector3d rvec;
+    solvePnP4Points(target2d,tvec,rvec);
     return true;
 }
 void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
@@ -138,12 +139,13 @@ void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
     angle_y = angle_y * 180.0 / 3.1415;
 }
 
-void AngleSolver::solvePnP4Points(const std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans)
+void AngleSolver::solvePnP4Points(const std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans,Eigen::Vector3d &rvec)
 {
     cv::Mat tvec_temp;
     cv::Mat rvec_temp;
-    cv::solvePnP(point3d, points2d, cam_matrix, distortion_coeff, rvec_temp, tvec_temp/*, true, CV_P3P*/); //自瞄
+    cv::solvePnP(point3d, points2d, cam_matrix, distortion_coeff, rvec_temp, tvec_temp,cv::SOLVEPNP_ITERATIVE); //自瞄
     trans<<tvec_temp.at<double>(0,0), tvec_temp.at<double>(1,0), tvec_temp.at<double>(2,0);
+    rvec<<rvec_temp.at<double>(0,0), rvec_temp.at<double>(1,0), rvec_temp.at<double>(2,0);
 }
 /*2023赛季新单目测距*/
 /*
@@ -293,68 +295,21 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
     //moto_move_yaw=0;
     //需要相机和电机的位置,不懂就去翻机械原理！！！(或者理论力学动力学部分)
 }
-void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, Eigen::Vector3d tvec, Eigen::Vector3d &moto_tvec)
+void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, Eigen::Vector3d tvec, Eigen::Vector3d rvec,Eigen::Vector3d &moto_tvec)
 {
+//    cv::Mat rvec_temp=(cv::Mat_<double>(3,1)<<rvec(0,0),rvec(1,0),rvec(2,0));
+//    //cv::Mat tvec_mat=(cv::Mat_<double>(3,1)<<tvec(0,0),tvec(1,0),tvec(2,0));
+//    cv::Mat rm;
+//    cv::Rodrigues(rvec_temp,rm);
+//    Eigen::Matrix3d rodrigus_mat;
+//    rodrigus_mat<<rm.at<double>(0,0),rm.at<double>(0,1),rm.at<double>(0,2),
+//            rm.at<double>(1,0),rm.at<double>(1,1),rm.at<double>(1,2),
+//            rm.at<double>(2,0),rm.at<double>(2,1),rm.at<double>(2,2);
+//    Eigen::Vector3d tvec_in_camera;
+//    tvec_in_camera=-rodrigus_mat*tvec;
+//    moto_tvec=tvec_in_camera;
+    moto_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
 
-    moto_pitch/=(180.0/3.14);//电控收发都是角度制，需要转成弧度制处理
 
-
-    double _z=sqrt(pow(tvec(2,0),2)+pow(tvec(0,0),2));
-    double _y=tvec(1,0);
-
-
-    double d_c=sqrt(pow(PBMD,2)+pow(PCBD,2));
-    double arfa=atan(PCBD/PBMD);
-
-    double zc=cos(3.14/2-moto_pitch-arfa)*d_c;
-    double yc=sin(3.14/2-moto_pitch-arfa)*d_c;
-
-    double threta=3.14/2+moto_pitch;
-
-    double x=tvec(0,0);
-    double z=zc+_z*cos(threta)-_y*sin(threta)-PBMD;
-    double y=yc+_y*cos(threta)+_z*sin(threta)-PCBD;
-    //y=sqrt(pow(x,2)+pow(y,2));
-    //上述已转完坐标系
-    //以下都是yaw的与pitch无关
-
-    int moto_yaw_int=floor(moto_yaw);
-    double moto_yaw_flo=moto_yaw-moto_yaw_int;
-
-    if(moto_yaw_int>=0) moto_yaw_int%=360;
-    else moto_yaw_int=moto_yaw_int%360+360;
-    moto_yaw=moto_yaw_int+moto_yaw_flo;
-    moto_yaw/=(180.0/3.14);//电控收发都是角度制，需要转成弧度制处理
-
-    ///////////////////////////////////////////
-    double d_c2=sqrt(pow(YBMD,2)+pow(YCBD,2));
-    double arfa2=atan(YCBD/YBMD);
-
-    double temp_angle=moto_yaw-arfa2+1.57;
-    if(temp_angle<0.0){
-        temp_angle+=3.14*2;
-    }
-    else if(temp_angle>=3.14*2){
-        temp_angle-=3.14*2;
-    }
-
-    double xc2=sin(temp_angle)*d_c2;
-    std::cout<<"xc2!!!!!!!!!!!!!"<<xc2<<std::endl;
-    double zc2=cos(temp_angle)*d_c2;
-    //////////////////////////////////////////
-
-//  double xc2=sin(moto_yaw)*YCBD;
-//  double zc2=cos(moto_yaw)*YCBD;
-
-    double xr2=tvec(0,0);
-       std::cout<<"xr2!!!!!!!!!!!!!"<<xr2<<std::endl;
-    double zr2=tvec(2,0);
-
-    double threta2=moto_yaw;
-
-    double _x2=xc2+xr2*cos(threta2)+zr2*sin(threta2);
-    double _z2=zc2+zr2*cos(threta2)-xr2*sin(threta2);
-
-    moto_tvec<<_x2,z,_z2;
 }
 

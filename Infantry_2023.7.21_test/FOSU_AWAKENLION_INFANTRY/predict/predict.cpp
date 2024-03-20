@@ -23,182 +23,45 @@ bool ArmorPredictTool::solveCarRadio()
 {
     //长度单位为cm
     int car_cls=(*object_addr).cls;
-    //int car_color=(*object_addr).color;
-    //std::cout<<"car_color:"<<car_color<<std::endl;
-    if(car_radio==0){
-        if(object_addr!=NULL){
-            if(/*cars_map[&object_addr.cls].second.same_id_object.size()==2*/0){
-                ArmorObject obj1;
-                ArmorObject obj2;
-                if(&cars_map[car_cls][0]==object_addr){
-                    obj1=cars_map[car_cls][0];
-                    obj2=cars_map[car_cls][1];
-                }
-                else{
-                    obj1=cars_map[car_cls][1];
-                    obj2=cars_map[car_cls][0];
-                }
-                Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
-                Eigen::Vector3d tvec_lu2;Eigen::Vector3d tvec_rd2;Eigen::Vector3d moto_t_lu2;Eigen::Vector3d moto_t_rd2;
-                cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
-                cv::Point2f rd1[4]={(obj1.apex[2]+obj1.apex[0])/2,(obj1.apex[2]+obj1.apex[1])/2,obj1.apex[2],(obj1.apex[2]+obj1.apex[3])/2};//右下
-                cv::Point2f lu2[4]={obj2.apex[0],(obj2.apex[0]+obj2.apex[1])/2,(obj2.apex[0]+obj2.apex[2])/2,(obj2.apex[0]+obj2.apex[3])/2};//左上
-                cv::Point2f rd2[4]={(obj2.apex[2]+obj2.apex[0])/2,(obj2.apex[2]+obj2.apex[1])/2,obj2.apex[2],(obj2.apex[2]+obj2.apex[3])/2};//右下
-                angle_solver.getAngle(lu1,tvec_lu1);
-                angle_solver.getAngle(rd1,tvec_rd1);
-                angle_solver.getAngle(lu2,tvec_lu2);
-                angle_solver.getAngle(rd2,tvec_rd2);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu2,moto_t_lu2);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd2,moto_t_rd2);
+    Eigen::Vector3d tvec11; Eigen::Vector3d moto_t_11;
+    Eigen::Vector3d rvec11;
+    ArmorObject obj1=cars_map[car_cls][0];
+    cv::Point2f armor_points[4]={obj1.apex[0],obj1.apex[1],obj1.apex[2],obj1.apex[3]};
+    double armor_width=(POINT_DIST(armor_points[0],armor_points[3])+POINT_DIST(armor_points[1],armor_points[2]))/2.0;
+    double armor_height(POINT_DIST(armor_points[0],armor_points[1])*
+            max(POINT_DIST(armor_points[0],armor_points[3]),POINT_DIST(armor_points[1],armor_points[2]))
+            /min(POINT_DIST(armor_points[0],armor_points[3]),POINT_DIST(armor_points[1],armor_points[2])));
+    double angle=(armor_width/armor_height)/(15.3/5.7)*(M_PI/2);
 
-                this->tvec1=(moto_t_lu1+moto_t_rd1)/2;
-                this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
-                double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
-                this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
+//    Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
+//    Eigen::Vector3d rvec_lu1;Eigen::Vector3d rvec_rd1;Eigen::Vector3d moto_r_lu1;Eigen::Vector3d moto_r_rd1;
 
-                this->tvec2=(moto_t_lu2+moto_t_rd2)/2;
-                double k2=(moto_t_lu2(0,0)-moto_t_rd2(0,0))/(moto_t_lu2(2,0)-moto_t_rd1(2,0));
-
-                Eigen::Vector3d tvec1_mid;
-                tvec1_mid<<tvec1(0,0),(tvec1(1,0)+tvec2(1,0))/2,tvec1(2,0);
-                Eigen::Vector3d tvec2_mid;
-                tvec2_mid<<tvec2(0,0),(tvec1(1,0)+tvec2(1,0))/2,tvec2(2,0);
-
-                double k_1=-1/k1;
-                double k_2=-1/k2;
-
-                double car_tvec_z= (k_1*tvec1_mid(2,0)-k_2*tvec2_mid(2,0)-tvec1_mid(0,0)+tvec2_mid(0,0))/(tvec1_mid(2,0)-tvec2_mid(2,0));
-                double car_tvec_x= k_1*(car_tvec_z-tvec1_mid(2,0))+tvec1_mid(0,0);
-
-                this->car_tvec<<car_tvec_x,tvec1_mid(1,0),car_tvec_z;
-
-                double delata_x=car_tvec(0,0)-tvec1_mid(0,0);
-                double delata_z=car_tvec(2,0)-tvec1_mid(2,0);
-                this->car_radio=sqrt(delata_x*delata_x+delata_z*delata_z);
-                this->cars_radio[car_cls]= car_radio;
-            }
-            else{
-
-                ArmorObject obj1=cars_map[car_cls][0];
-                Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
-                
-                cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
-                cv::Point2f rd1[4]={(obj1.apex[2]+obj1.apex[0])/2,(obj1.apex[2]+obj1.apex[1])/2,obj1.apex[2],(obj1.apex[2]+obj1.apex[3])/2};//右下
-                angle_solver.getAngle(lu1,tvec_lu1);
-                angle_solver.getAngle(rd1,tvec_rd1);
-
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
-
-                this->tvec1=(moto_t_lu1+moto_t_rd1)/2;
-                this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
-                double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
-                this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
-
-                // int sum=0;
-                // for(int i=0;i<6;i++){
-                //     if(this->*(cars_radio+i)==0){
-                //         continue;
-                //     }
-                //     this->car_radio+=this->*(cars_radio+i);
-                //     sum++;
-                // }
-                // this->car_radio/=sum;
-                this->car_radio=0.0;
-
-                double car_tvec_z= tvec1(0,2)+car_radio*sin(car_angle);
-                double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
-
-                this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
-            }
-            return 1;
-        }
-        else{
-            std::cout<<"no object find!"<<std::endl;
-            return 0;
-        }    
-    }
-    else{
-            if(object_addr!=NULL){
-
-                if(/*cars_map[&object_addr.cls].size()==2*/0){
-                ArmorObject obj1;
-                ArmorObject obj2;
-                if(&cars_map[car_cls][0]==object_addr){
-                    obj1=cars_map[car_cls][0];
-                    obj2=cars_map[car_cls][1];
-                }
-                else{
-                    obj1=cars_map[car_cls][1];
-                    obj2=cars_map[car_cls][0];
-                }
-                Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
-                Eigen::Vector3d tvec_lu2;Eigen::Vector3d tvec_rd2;Eigen::Vector3d moto_t_lu2;Eigen::Vector3d moto_t_rd2;
-                cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
-                cv::Point2f rd1[4]={(obj1.apex[2]+obj1.apex[0])/2,(obj1.apex[2]+obj1.apex[1])/2,obj1.apex[2],(obj1.apex[2]+obj1.apex[3])/2};//右下
-                cv::Point2f lu2[4]={obj2.apex[0],(obj2.apex[0]+obj2.apex[1])/2,(obj2.apex[0]+obj2.apex[2])/2,(obj2.apex[0]+obj2.apex[3])/2};//左上
-                cv::Point2f rd2[4]={(obj2.apex[2]+obj2.apex[0])/2,(obj2.apex[2]+obj2.apex[1])/2,obj2.apex[2],(obj2.apex[2]+obj2.apex[3])/2};//右下
-                angle_solver.getAngle(lu1,tvec_lu1);
-                angle_solver.getAngle(rd1,tvec_rd1);
-                angle_solver.getAngle(lu2,tvec_lu2);
-                angle_solver.getAngle(rd2,tvec_rd2);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu2,moto_t_lu2);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd2,moto_t_rd2);
-
-                this->tvec1=(moto_t_lu1+moto_t_rd1)/2;
-                this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
-                double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
-                this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
-
-                this->tvec2=(moto_t_lu2+moto_t_rd2)/2;
-                double k2=(moto_t_lu2(0,0)-moto_t_rd2(0,0))/(moto_t_lu2(2,0)-moto_t_rd1(2,0));
-
-                double car_tvec_z= tvec1(2,0)+car_radio*sin(car_angle);
-                double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
-
-                this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
-            }
-            else{
-//                    int car_color=cars_map[car_cls][0].color;
-//                    std::cout<<"car_color:"<<car_color<<std::endl;
-
-                ArmorObject obj1=cars_map[car_cls][0];
-                Eigen::Vector3d tvec_lu1;Eigen::Vector3d tvec_rd1;Eigen::Vector3d moto_t_lu1;Eigen::Vector3d moto_t_rd1;
-                
-                cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
-                cv::Point2f rd1[4]={(obj1.apex[2]+obj1.apex[0])/2,(obj1.apex[2]+obj1.apex[1])/2,obj1.apex[2],(obj1.apex[2]+obj1.apex[3])/2};//右下
-                angle_solver.getAngle(lu1,tvec_lu1);
-                angle_solver.getAngle(rd1,tvec_rd1);
-                std::cout<<"here?"<<std::endl;
-
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,moto_t_lu1);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,moto_t_rd1);
+//    cv::Point2f lu1[4]={obj1.apex[0],(obj1.apex[0]+obj1.apex[1])/2,(obj1.apex[0]+obj1.apex[2])/2,(obj1.apex[0]+obj1.apex[3])/2};//左上
+//    cv::Point2f rd1[4]={(obj1.apex[2]+obj1.apex[0])/2,(obj1.apex[2]+obj1.apex[1])/2,obj1.apex[2],(obj1.apex[2]+obj1.apex[3])/2};//右下
+//    angle_solver.getAngle(lu1,tvec_lu1,rvec_lu1);
+//    angle_solver.getAngle(rd1,tvec_rd1,rvec_rd1);
+//    angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_lu1,rvec_lu1,moto_t_lu1);
+//    angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec_rd1,rvec_rd1,moto_t_rd1);
+//    double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
+//    this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
+//    std::cout<<car_angle/3.14*180.0<<std::endl;
 
 
-                this->tvec1=(moto_t_lu1+moto_t_rd1)/2;
 
 
-                this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
+    angle_solver.getAngle(armor_points,tvec11,rvec11);
+    angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec11,rvec11,moto_t_11);
+    this->tvec1=moto_t_11;
+    std::cout<<armor_height<<"  "<<moto_t_11(2,0)<<" "<<armor_height/moto_t_11(2,0)<<std::endl;
+    //std::cout<<angle/3.14*180.0<<std::endl;
 
-                double k1=(moto_t_lu1(0,0)-moto_t_rd1(0,0))/(moto_t_lu1(2,0)-moto_t_rd1(2,0));
-                this->car_angle=atan(k1)<0?atan(k1)+M_PI:atan(k1);
-                    std::cout<<car_angle<<std::endl;
 
-                double car_tvec_z= tvec1(2,0)+car_radio*sin(car_angle);
-                double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
+//    this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
+//    double car_tvec_z= tvec1(2,0)+car_radio*sin(car_angle);
+//    double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
 
-                this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
-                return 1;
-
-            }
-
-        }
-        else return false;
-    }
+//    this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
+    return 1;
 }
 
 bool ArmorPredictTool::predictRotated()
@@ -334,120 +197,120 @@ RunePredictTool::RunePredictTool(AngleSolver angle_solver,BuffObject object,doub
     this->cur_pos_center=(object.apex[1]+object.apex[3])/2;
 }
 bool RunePredictTool::setRuneCoordinary(){
-                cv::Point2d rc_pos_in_rune=cv::Point2d(rune_center.x-cur_pos_center.x,cur_pos_center.y-rune_center.y);//x轴已翻转
-                for(int i=0;i<4;i++){
-                    cur_pos_points[i].x=rune_center.x-cur_pos_points[i].x;
-                    cur_pos_points[i].y-=rune_center.y;
-                }//将整个靶子转到旋转中心坐标系中
+//                cv::Point2d rc_pos_in_rune=cv::Point2d(rune_center.x-cur_pos_center.x,cur_pos_center.y-rune_center.y);//x轴已翻转
+//                for(int i=0;i<4;i++){
+//                    cur_pos_points[i].x=rune_center.x-cur_pos_points[i].x;
+//                    cur_pos_points[i].y-=rune_center.y;
+//                }//将整个靶子转到旋转中心坐标系中
 
-                double k=rc_pos_in_rune.y/rc_pos_in_rune.x;
+//                double k=rc_pos_in_rune.y/rc_pos_in_rune.x;
 
-                std::cout<<"k:"<<k<<"???????????????????????????????????????????"<<std::endl;
+//                std::cout<<"k:"<<k<<"???????????????????????????????????????????"<<std::endl;
 
-                double angle=atan(k);
-                if(rc_pos_in_rune.x<0&&k<0) angle+=3.14;
-                else if(rc_pos_in_rune.x<0&&k>0) angle+=3.14;
-                else if(rc_pos_in_rune.x>0&&k<0) angle+=6.28;
+//                double angle=atan(k);
+//                if(rc_pos_in_rune.x<0&&k<0) angle+=3.14;
+//                else if(rc_pos_in_rune.x<0&&k>0) angle+=3.14;
+//                else if(rc_pos_in_rune.x>0&&k<0) angle+=6.28;
 
-                angle*=180/3.1415926;// 转成角度制处理
-
-
-                // Eigen::Vector3d source_point;
-                // source_point<< 0.7*cos(angle),0.7*sin(angle),0;
-
-                Eigen::Vector3d source_tvec;
-                Eigen::Vector3d moto_source_tvec;
-                angle_solver.getAngle(pre_cur_pos_points,source_tvec);
-                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,source_tvec,moto_source_tvec);
-                double cur_dist=sqrt(pow(moto_source_tvec(0,2),2)+pow(moto_source_tvec(0,0),2))/100.0;
+//                angle*=180/3.1415926;// 转成角度制处理
 
 
-                static double angle_recent = angle;
-                static double angle_old = angle_recent;
+//                // Eigen::Vector3d source_point;
+//                // source_point<< 0.7*cos(angle),0.7*sin(angle),0;
 
-                angles.push_back(angle_recent);
-
-                if(angles.size()>=4){
-                    angles.erase(angles.begin());
-                    double predict_t;
-
-                    if(bullet_speed > 0)
-                    {
-                        predict_t=cur_dist/bullet_speed;
-                    }
-                    else
-                    {
-                        predict_t=cur_dist/26;
-#ifdef DEBUG_MODE
-                        std::cout << "no bulet speed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  " << std::endl;
-#endif // DEBUG_MODE
-                    }
-
-                    this->running_time+=predict_t;
+//                Eigen::Vector3d source_tvec;
+//                Eigen::Vector3d moto_source_tvec;
+//                angle_solver.getAngle(pre_cur_pos_points,source_tvec);
+//                angle_solver.coordinary_transformation(moto_pitch,moto_yaw,source_tvec,moto_source_tvec);
+//                double cur_dist=sqrt(pow(moto_source_tvec(0,2),2)+pow(moto_source_tvec(0,0),2))/100.0;
 
 
-                    double angle_diff=angles[2]-angles[1];
-                    double angle_diff2=angles[1]-angles[0];
+//                static double angle_recent = angle;
+//                static double angle_old = angle_recent;
+
+//                angles.push_back(angle_recent);
+
+//                if(angles.size()>=4){
+//                    angles.erase(angles.begin());
+//                    double predict_t;
+
+//                    if(bullet_speed > 0)
+//                    {
+//                        predict_t=cur_dist/bullet_speed;
+//                    }
+//                    else
+//                    {
+//                        predict_t=cur_dist/26;
+//#ifdef DEBUG_MODE
+//                        std::cout << "no bulet speed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  " << std::endl;
+//#endif // DEBUG_MODE
+//                    }
+
+//                    this->running_time+=predict_t;
+
+
+//                    double angle_diff=angles[2]-angles[1];
+//                    double angle_diff2=angles[1]-angles[0];
 
 
 
 
-                    if(abs(angle_diff)>=180&&angles[2]/angles[1]<0){
-                        angle_diff=angle_diff-360.0*(angle_diff/abs(angle_diff));
-                    }
-                    else{
-                        angle_diff=(int)floor(angle_diff)%72+angle_diff-floor(angle_diff);
-                    }
+//                    if(abs(angle_diff)>=180&&angles[2]/angles[1]<0){
+//                        angle_diff=angle_diff-360.0*(angle_diff/abs(angle_diff));
+//                    }
+//                    else{
+//                        angle_diff=(int)floor(angle_diff)%72+angle_diff-floor(angle_diff);
+//                    }
 
-                    if(abs(angle_diff2)>=180&&angles[1]/angles[0]<0){
-                        angle_diff2=angle_diff2-360.0*(angle_diff2/abs(angle_diff2));
-                    }
-                    else{
-                        angle_diff2=(int)floor(angle_diff2)%72+angle_diff2-floor(angle_diff2);
-                    }
+//                    if(abs(angle_diff2)>=180&&angles[1]/angles[0]<0){
+//                        angle_diff2=angle_diff2-360.0*(angle_diff2/abs(angle_diff2));
+//                    }
+//                    else{
+//                        angle_diff2=(int)floor(angle_diff2)%72+angle_diff2-floor(angle_diff2);
+//                    }
 
-                        //对angle_diff做跃变与象限跃变处理
-#ifdef DEBUG_MODE
-                        std::cout<<"angle_diff--------------------------------------------------------------------------------------------"<<angle_diff<<std::endl;
-                        std::cout<<"angle_diff2+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<angle_diff2<<std::endl;
-#endif
+//                        //对angle_diff做跃变与象限跃变处理
+//#ifdef DEBUG_MODE
+//                        std::cout<<"angle_diff--------------------------------------------------------------------------------------------"<<angle_diff<<std::endl;
+//                        std::cout<<"angle_diff2+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<angle_diff2<<std::endl;
+//#endif
 
 
-                    Eigen::Vector2d z_k;
-                    if(running_time!=0)
-                        z_k<<angle_diff ,angle_diff / running_time;
-                    else
-                        z_k<<angle_diff ,angle_diff / 1.5;
+//                    Eigen::Vector2d z_k;
+//                    if(running_time!=0)
+//                        z_k<<angle_diff ,angle_diff / running_time;
+//                    else
+//                        z_k<<angle_diff ,angle_diff / 1.5;
 
-#ifdef DEBUG_MODE
-                    std::cout<<"z_k:"<<z_k<<endl;
-#endif
+//#ifdef DEBUG_MODE
+//                    std::cout<<"z_k:"<<z_k<<endl;
+//#endif
 
-                    Eigen::Vector2d state=kalman.update(z_k,running_time);        //更新卡尔曼滤波
-                                                      //将角度和时间传入卡尔曼滤波后得到的角速度
-                    //kalman_speed=speed_recent;
-                    //double kalman_angle_recent=state(0,0);                 //待激活装甲板与中心点角度的滤波值
+//                    Eigen::Vector2d state=kalman.update(z_k,running_time);        //更新卡尔曼滤波
+//                                                      //将角度和时间传入卡尔曼滤波后得到的角速度
+//                    //kalman_speed=speed_recent;
+//                    //double kalman_angle_recent=state(0,0);                 //待激活装甲板与中心点角度的滤波值
 
-                    pre_angle=state[0];
+//                    pre_angle=state[0];
 
-                    for(int i=0;i<4;i++){
-                        cv::Point2f temp_point;
-                        temp_point.x=cur_pos_points[i].x*cos(pre_angle)-cur_pos_points[i].y*sin(pre_angle)+rune_center.x;
-                        temp_point.y=cur_pos_points[i].y*cos(pre_angle)+cur_pos_points[i].x*sin(pre_angle)-rune_center.y;
-                        pre_cur_pos_points.push_back(temp_point);
-                    }
-                    Eigen::Vector3d tvec;Eigen::Vector3d moto_tvec;
+//                    for(int i=0;i<4;i++){
+//                        cv::Point2f temp_point;
+//                        temp_point.x=cur_pos_points[i].x*cos(pre_angle)-cur_pos_points[i].y*sin(pre_angle)+rune_center.x;
+//                        temp_point.y=cur_pos_points[i].y*cos(pre_angle)+cur_pos_points[i].x*sin(pre_angle)-rune_center.y;
+//                        pre_cur_pos_points.push_back(temp_point);
+//                    }
+//                    Eigen::Vector3d tvec;Eigen::Vector3d moto_tvec;
 
-                    angle_solver.getAngle(pre_cur_pos_points,tvec);
+//                    angle_solver.getAngle(pre_cur_pos_points,tvec);
 
-                    angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec,moto_tvec);
+//                    angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec,moto_tvec);
 
-                    this->cur_moto_tvec=moto_tvec;
-                    return 1;
-                }
-                else{
-                    return 0;
-                }
+//                    this->cur_moto_tvec=moto_tvec;
+//                    return 1;
+//                }
+//                else{
+//                    return 0;
+//                }
 }
 
 

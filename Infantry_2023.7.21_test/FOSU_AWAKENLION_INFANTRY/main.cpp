@@ -37,31 +37,30 @@ Serial serial(main_settings.port_param);
 
 void cameraThread(cv::Mat *src){
 
-        std::cout << "MVVideoCapture Init" << std::endl;
-        if(-1 == MVVideoCapture::Init())
-        {
-            std::cout << "MVVideoCapture ERROR!!!" << std::endl;
-            return;
-        }
-        else{
-            MVVideoCapture::Play();
-            MVVideoCapture::SetExposureTime(true, (/*main_settings.debug.expore_time*/1200)*0.7);
-            MVVideoCapture::SetLargeResolution(true);
-            std::cout << "MVVideoCapture Finished!" << std::endl;
+//        std::cout << "MVVideoCapture Init" << std::endl;
+//        if(-1 == MVVideoCapture::Init())
+//        {
+//            std::cout << "MVVideoCapture ERROR!!!" << std::endl;
+//            return;
+//        }
+//        else{
+//            MVVideoCapture::Play();
+//            MVVideoCapture::SetExposureTime(true, (/*main_settings.debug.expore_time*/1200)*0.7);
+//            MVVideoCapture::SetLargeResolution(true);
+//            std::cout << "MVVideoCapture Finished!" << std::endl;
 
-            while(1){
-                MVVideoCapture::GetFrame(*src);
-                if((*src).empty()){
-                    std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-                }
-                else{
-                    cv::imshow("src",(*src));
-                    cv::waitKey(1);
-                }
-            }
-//            MVVideoCapture::Stop();
-//            MVVideoCapture::Uninit();
-        }
+//            while(1){
+//                MVVideoCapture::GetFrame(*src);
+//                if((*src).empty()){
+//                    std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+//                }
+//                else{
+//                    cv::imshow("src",(*src));
+//                    cv::waitKey(1);
+//                }
+//            }
+
+//      }
 }
 void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_object,BuffObject *buff_object,double *running_time,
                   AngleSolver *angle_solver,std::vector<ArmorObject> *cars_map,UnpackData *unpack_data,bool *flag){
@@ -79,6 +78,16 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 
 
     while(1){
+        *flag=false;
+        MVVideoCapture::GetFrame(*src);
+        if((*src).empty()){
+            std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+        }
+        else{
+            cv::resize(*src,*src,cv::Size(640,480));
+            cv::imshow("src",(*src));
+            cv::waitKey(1);
+        }
 
         if((*src).empty()){
             std::cout<<"src is empty"<<endl;
@@ -182,16 +191,20 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
     double predict_time=during_time+*running_time;//s
     
 
-    while(1){
+
 
         if(*flag==false){
-            sleep(1);
-            continue;
+            //sleep(1);
+            return;
         }
+
 
         double time1=cv::getTickCount();
 
         if((*main_settings).main_mode == 0){
+            if(cars_radio==NULL&&object_addr==NULL&&cars_map==NULL&&running_time==NULL)
+                return;
+
 //            double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
 //            double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
             double moto_pitch_angle=0.0;
@@ -256,7 +269,6 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
 //        }
         double time2=cv::getTickCount();
         during_time=(time2-time1)/cv::getTickFrequency();//s
-    }
 
 }
 
@@ -269,29 +281,32 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
 int main(){
 
     serial.openPort("/dev/ttyACM0");
+    std::cout << "MVVideoCapture Init" << std::endl;
+    if(-1 == MVVideoCapture::Init())
+    {
+        std::cout << "MVVideoCapture ERROR!!!" << std::endl;
+        return 1;
+    }
+    else{
+        MVVideoCapture::Play();
+        MVVideoCapture::SetExposureTime(false, (/*main_settings.debug.expore_time*/10000));//bu yao zi dong tiao bao guang!!!
+        MVVideoCapture::SetLargeResolution(true);
+        std::cout << "MVVideoCapture Finished!" << std::endl;
+    }
 
 
 #ifdef DEBUG_MODE
     main_settings.setMainParam(WIN_OTHER);
     //main_settings.setCameraParam(WIN_CAMERA);
 #endif
-    std::thread ct(cameraThread,&src);
+
     std::thread dt(detectThread,&main_settings,&src,&armor_object,&buff_object,&running_time,&angle_solver,cars_map,&unpack_data,&flag);
-
-    std::thread pt(predictThread,&main_settings,&angle_solver,cars_radio,&armor_object,&buff_object,
-                   cars_map,&running_time,
-                   &pack_data,&unpack_data,&serial,&flag);
-
     std::thread st(&UnpackData::processing, p_unpack_data, &serial);
-
-
-
-
-      ct.join();
-      dt.join();
-      pt.join();
-      st.join();
-
+    dt.detach();
+    st.detach();
+    while(1){
+        predictThread(&main_settings,&angle_solver,cars_radio,&armor_object,&buff_object,cars_map,&running_time,&pack_data,&unpack_data,&serial,&flag);
+    }
 #ifdef DEBUG_MODE
 //      while(1){
 //        cv::Mat src_clone=src.clone();
