@@ -308,7 +308,23 @@ void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, 
 //    Eigen::Vector3d tvec_in_camera;
 //    tvec_in_camera=-rodrigus_mat*tvec;
 //    moto_tvec=tvec_in_camera;
-    moto_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
+    double a=-moto_pitch/(180.0/3.14);
+    double b=-moto_yaw/(180.0/3.14);//此处符号是因为英雄坐标系与步兵不一样，到时候根据情况协商
+
+    Eigen::Matrix3d rotated_mat;
+    rotated_mat<<cos(a)       ,sin(a)       ,0.0   ,
+                -cos(b)*sin(a),cos(b)*cos(a),sin(b),
+                sin(b)*sin(a),-sin(b)*sin(a),cos(b);
+
+
+    Eigen::Vector3d camera_tvec;
+    double xc=PCBD*cos(a)*sin(b);
+    double zc=PCBD*cos(a)*cos(b);
+    double yc=PCBD*sin(a);
+    camera_tvec<<xc,yc,zc;
+
+    moto_tvec=camera_tvec+rotated_mat*tvec;
+    //moto_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
 
 
 }

@@ -51,7 +51,9 @@ private:
     double moto_yaw;
 
     Armor_Kalman angle_kalman;
-    Armor_Kalman car_kalman;
+    Armor_Kalman car_kalman_x;
+    Armor_Kalman car_kalman_y;
+    Armor_Kalman car_kalman_z;
     double angle_predict;
     Eigen::Vector3d car_predict;
     
