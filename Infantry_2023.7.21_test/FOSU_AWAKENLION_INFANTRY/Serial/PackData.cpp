@@ -31,7 +31,7 @@ void PackData::process(Serial *serial)
 
     if(pc2stm_mesg.gimbal_control_data.aim_yaw>=90||pc2stm_mesg.gimbal_control_data.aim_yaw<=-90){
         pc2stm_mesg.gimbal_control_data.aim_yaw=0;
-        std::cout<<"算法发的yaw有误，请自查！！"<<std::endl;
+        //std::cout<<"算法发的yaw有误，请自查！！"<<std::endl;
     }
 
         packData(GIMBAL_CTRL_ID, (u8 *)&pc2stm_mesg.gimbal_control_data, sizeof(pc2stm_mesg.gimbal_control_data), tx_buf);

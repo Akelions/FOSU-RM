@@ -1,5 +1,24 @@
 #include "predict.h"
 
+ArmorPredictTool::ArmorPredictTool(){
+
+}
+
+
+void ArmorPredictTool::inputData(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
+                                 std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time){
+    this->cars_radio=cars_radio;
+    this->car_radio=*(cars_radio+(*object_addr).cls);
+    this->cars_map=cars_map;
+    this->angle_solver=angle_solver;
+    this->object_addr=object_addr;
+    this->moto_pitch=moto_pitch;
+    this->moto_yaw=moto_yaw;
+
+    this->running_time=running_time;
+    this->bullet_speed=bullet_speed;
+}
+
 ArmorPredictTool::ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
 std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time)
 {
@@ -24,11 +43,11 @@ bool ArmorPredictTool::solveCarRadio()
     //长度单位为cm
     int car_cls=(*object_addr).cls;
     if(cars_map[car_cls].size()==2){
-        Eigen::Vector3d tvec11; Eigen::Vector3d moto_t_11; Eigen::Vector3d rvec11; 
+        Eigen::Vector3d tvec11; Eigen::Vector3d moto_t_11; Eigen::Vector3d rvec11;
         Eigen::Vector3d tvec22; Eigen::Vector3d moto_t_22; Eigen::Vector3d rvec22;
         ArmorObject obj1;
         ArmorObject obj2;
-        if((*object_addr).apex[0].x==cars_map[car_cls][0].x&&(*object_addr).apex[0].y==cars_map[car_cls][0].y){ 
+        if(   (*object_addr).area==cars_map[car_cls][0].area /*&& ((*object_addr).apex[0].y==cars_map[car_cls][0].y)*/){
             obj1=cars_map[car_cls][0];
             obj2=cars_map[car_cls][1];
         }
@@ -65,8 +84,8 @@ bool ArmorPredictTool::solveCarRadio()
             Eigen::Vector3d tvec2_mid;
             tvec2_mid<<tvec2(0,0),(tvec1(1,0)+tvec2(1,0))/2,tvec2(2,0);
 
-            double 1_k=atan(angle1);
-            double 2_k=atan(angle2);
+            double k_1=atan(angle1);
+            double k_2=atan(angle2);
 
             double car_tvec_z= (k_1*tvec1_mid(2,0)-k_2*tvec2_mid(2,0)-tvec1_mid(0,0)+tvec2_mid(0,0))/(tvec1_mid(2,0)-tvec2_mid(2,0));
             double car_tvec_x= k_1*(car_tvec_z-tvec1_mid(2,0))+tvec1_mid(0,0);
@@ -92,7 +111,7 @@ bool ArmorPredictTool::solveCarRadio()
 
             this->tvec1=moto_t_11;
             this->tvec2=moto_t_22;
-            //std::cout<<angle/3.14*180.0<<std::endl;
+            //std::cout<<angle/M_PI*180.0<<std::endl;
             this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
             if(cars_radio[car_cls]==0)
                 this->car_tvec=tvec1;
@@ -125,15 +144,16 @@ bool ArmorPredictTool::solveCarRadio()
 
         angle_solver.coordinary_transformation(moto_pitch,moto_yaw,tvec11,rvec11,moto_t_11);
         this->tvec1=moto_t_11;
-        //std::cout<<angle/3.14*180.0<<std::endl;
+        //std::cout<<car_angle/M_PI*180.0<<std::endl;//yes!
         this->running_time+=sqrt(pow(this->tvec1(2,0),2)+pow(this->tvec1(0,0),2))/100.0/bullet_speed;
         if(cars_radio[car_cls]==0)
             this->car_tvec=tvec1;
         else{
             double car_tvec_z= tvec1(2,0)+car_radio*sin(car_angle);
-            double car_tvec_x= tvec1(0,0)-car_radio*cos(car_angle);
+            double car_tvec_x= tvec1(0,0)+car_radio*cos(car_angle);
             this->car_tvec<<car_tvec_x,tvec1(1,0),car_tvec_z;
         }
+        //std::cout<<"car_tvec"<<car_tvec<<std::endl;
         return 1;
     }
     else
@@ -145,41 +165,53 @@ bool ArmorPredictTool::predictRotated()
 
     static std::vector<double> angles;
     angles.push_back(this->car_angle);
-//    std::cout<<car_angle<<std::endl;
-//    std::cout<<"here?"<<std::endl;
+//    std::cout<<car_angle*180.0/M_PI<<std::endl;
 
        if(angles.size()>=3){
             angles.erase(angles.begin());
-            Eigen::Vector2d _angle;
-            Eigen::Vector2d _anglep;
+            this->angle_predict=car_angle;
+
+//            Eigen::Vector2d _angle;
+//            Eigen::Vector2d _anglep;
 
 
-            if(running_time<=0) running_time=1.0;
-            _angle << angles[1]-angles[0],(angles[1]-angles[0])/running_time;
-            _anglep=angle_kalman.update(_angle,running_time);
-
-           this->angle_predict=angles[1]+_anglep(0,0);
-            if(angle_predict<M_PI/3.0){
-                if(_anglep(1,0)<0&&angle_predict>0.0){
-                    angle_predict+=M_PI/2.0;
-                    this->switch_y=1;
-                }
-                else if(_anglep(1,0)<0&&angle_predict<0.0){
-                    angle_predict+=M_PI;
-                    this->switch_y=0;
-                }
-            }
-            else if(angle_predict>M_PI*2.0/3.0){
-                if(_anglep(1,0)>0&&angle_predict<M_PI){
-                    angle_predict-=M_PI/2.0;
-                    this->switch_y=1;
-                }
-                else{
-                    angle_predict-=M_PI;
-                    this->switch_y=0;
-                }
-            }
+//            if(running_time<=0) running_time=1.0;
+//            _angle << angles[1]-angles[0],(angles[1]-angles[0])/running_time;
+//            _anglep=angle_kalman.update(_angle,running_time);
+//            //std::cout<<"_anglep"<<_anglep<<std::endl;
+//           this->angle_predict=angles[1]+_anglep(0,0);
+//            if(angle_predict<M_PI/4.0){
+//                if(_anglep(1,0)<-1.57&&angle_predict>0.0){
+//                    angle_predict+=M_PI/2.0;
+//                    this->switch_y=1;
+//                }
+//                else if(_anglep(1,0)<-1.57&&angle_predict<0.0){
+//                    angle_predict+=M_PI;
+//                    this->switch_y=0;
+//                }
+//                else if(angle_predict<M_PI/4.3){
+//                    angle_predict+=M_PI/2.0;
+//                    this->switch_y=1;
+//                }
+//            }
+//            else if(angle_predict>M_PI*3.0/4.0){
+//                if(_anglep(1,0)>1.57&&angle_predict<M_PI){
+//                    angle_predict-=M_PI/2.0;
+//                    this->switch_y=1;
+//                }
+//                else if(_anglep(1,0)>1.57&&angle_predict>M_PI){
+//                    angle_predict-=M_PI;
+//                    this->switch_y=0;
+//                }
+//                else if(angle_predict>M_PI*3.6/4.0){
+//                    angle_predict+=M_PI/2.0;
+//                    this->switch_y=1;
+//                }
+//            }
+            //std::cout<<"angle_predict"<<angle_predict*180.0/M_PI<<std::endl;
+            return true;
     }
+       else return false;
 }
 
 bool ArmorPredictTool::predictMove()
@@ -188,10 +220,11 @@ bool ArmorPredictTool::predictMove()
     static std::vector<double> x_store;
     static std::vector<double> y_store;
     static std::vector<double> z_store;
+    //std::cout<<"car_tvec"<<car_tvec<<std::endl;
     
-       x_store.push_back(car_tvec(0,0));
-       y_store.push_back(car_tvec(1,0));
-       z_store.push_back(car_tvec(2,0));
+       x_store.push_back(this->car_tvec(0,0));
+       y_store.push_back(this->car_tvec(1,0));
+       z_store.push_back(this->car_tvec(2,0));
 
 
 
@@ -200,48 +233,59 @@ bool ArmorPredictTool::predictMove()
         y_store.erase(y_store.begin());
         z_store.erase(z_store.begin());
 
-
-           Eigen::Vector2d _X;
-           Eigen::Vector2d _Y;
-           Eigen::Vector2d _Z;
-           Eigen::Vector2d _Xp;
-           Eigen::Vector2d _Yp;
-           Eigen::Vector2d _Zp;
-
-           if(this->running_time<=0) this->running_time=0.5;
-
-           _X<< (x_store[1]-x_store[0]),(x_store[1]-x_store[0])/this->running_time;
-           _Y<< (y_store[1]-y_store[0]),(y_store[1]-y_store[0])/this->running_time;
-           _Z<< (z_store[1]-z_store[0]),(z_store[1]-z_store[0])/this->running_time;
+        car_predict=car_tvec;
 
 
+//           Eigen::Vector2d _X;
+//           Eigen::Vector2d _Y;
+//           Eigen::Vector2d _Z;
+//           Eigen::Vector2d _Xp;
+//           Eigen::Vector2d _Yp;
+//           Eigen::Vector2d _Zp;
+
+//           if(this->running_time<=0) this->running_time=0.5;
+
+//           _X<< (x_store[1]-x_store[0]),(x_store[1]-x_store[0])/this->running_time;
+//           _Y<< (y_store[1]-y_store[0]),(y_store[1]-y_store[0])/this->running_time;
+//           _Z<< (z_store[1]-z_store[0]),(z_store[1]-z_store[0])/this->running_time;
 
 
-           _Xp=car_kalman_x.update(_X,this->running_time);
-           _Yp=car_kalman_y.update(_Y,this->running_time);
-           _Zp=car_kalman_z.update(_Z,this->running_time);
+
+
+//           _Xp=car_kalman_x.update(_X,this->running_time);
+//           _Yp=car_kalman_y.update(_Y,this->running_time);
+//           _Zp=car_kalman_z.update(_Z,this->running_time);
+
+//           //std::cout<<"_Xp"<<_Xp<<std::endl;
 
            
-           car_predict<< _Xp(0,0),_Yp(0,0),_Zp(0,0);
+//           car_predict<< car_tvec(0,0)+_Xp(0,0),car_tvec(1,0)+_Yp(0,0),car_tvec(2,0)+_Zp(0,0);
+//           std::cout<<"car_predict"<<car_predict<<std::endl;
 
-           cout<<"_Xp(0,0)!!!!!!!!!!!!!!!!"<<_Xp(0,0)<<endl;
-           cout<<"_Yp(0,0)!!!!!!!!!!!!!!!!"<<_Yp(0,0)<<endl;
-           cout<<"_Zp(0,0)!!!!!!!!!!!!!!!!"<<_Zp(0,0)<<endl;
+////           cout<<"_Xp(0,0)!!!!!!!!!!!!!!!!"<<_Xp(0,0)<<endl;
+////           cout<<"_Yp(0,0)!!!!!!!!!!!!!!!!"<<_Yp(0,0)<<endl;
+////           cout<<"_Zp(0,0)!!!!!!!!!!!!!!!!"<<_Zp(0,0)<<endl;
+           return true;
        }
+       else return false;
 }
 
 bool ArmorPredictTool::stateAdd()
 {
     
+//    double armor_z=car_predict(2,0)-car_radio*sin(angle_predict);
+//    double armor_x=car_predict(0,0)-car_radio*cos(angle_predict);
+//    double armor_y=switch_y?tvec2(1,0):tvec1(1,0);
     double armor_z=car_predict(2,0)-car_radio*sin(angle_predict);
     double armor_x=car_predict(0,0)-car_radio*cos(angle_predict);
-    double armor_y=switch_y?tvec2(1,0):tvec1(1,0);
+    double armor_y=tvec1(1,0);
+    //std::cout<<"tvec"<<tvec1<<std::endl;
     tvec_armor<<armor_x,armor_y,armor_z;
+    //std::cout<<"tvec_armor"<<tvec_armor<<std::endl;
 
 }
 
-bool ArmorPredictTool::predictArmor()
-{
+void ArmorPredictTool::kalmanInit(){
     static bool init_flag=false;
     if(!init_flag){
         Eigen::Matrix2d A=Eigen::Matrix2d::Identity();
@@ -262,7 +306,13 @@ bool ArmorPredictTool::predictArmor()
         car_kalman_y = Armor_Kalman(A,H,R,Q,init,0);
         car_kalman_z = Armor_Kalman(A,H,R,Q,init,0);
         init_flag=true;
+        std::cout<<"init success!"<<std::endl;
     }
+}
+
+bool ArmorPredictTool::predictArmor()
+{
+
 
     if(solveCarRadio()){
        if(predictRotated()){
@@ -304,11 +354,11 @@ bool RunePredictTool::setRuneCoordinary(){
 //                std::cout<<"k:"<<k<<"???????????????????????????????????????????"<<std::endl;
 
 //                double angle=atan(k);
-//                if(rc_pos_in_rune.x<0&&k<0) angle+=3.14;
-//                else if(rc_pos_in_rune.x<0&&k>0) angle+=3.14;
+//                if(rc_pos_in_rune.x<0&&k<0) angle+=M_PI;
+//                else if(rc_pos_in_rune.x<0&&k>0) angle+=M_PI;
 //                else if(rc_pos_in_rune.x>0&&k<0) angle+=6.28;
 
-//                angle*=180/3.1415926;// 转成角度制处理
+//                angle*=180/M_PI;// 转成角度制处理
 
 
 //                // Eigen::Vector3d source_point;

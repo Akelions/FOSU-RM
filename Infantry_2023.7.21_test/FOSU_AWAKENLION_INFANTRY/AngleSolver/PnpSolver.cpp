@@ -135,8 +135,8 @@ void AngleSolver::adjustPTZ2Barrel(const cv::Mat &pos_in_ptz,
         theta = atan(xyz[1] / xyz[2]);
         angle_y = -alpha + theta;
     }
-    angle_x = angle_x * 180.0 / 3.14159;
-    angle_y = angle_y * 180.0 / 3.1415;
+    angle_x = angle_x * 180.0 / M_PI;
+    angle_y = angle_y * 180.0 / M_PI;
 }
 
 void AngleSolver::solvePnP4Points(const std::vector<cv::Point2f> points2d, Eigen::Vector3d &trans,Eigen::Vector3d &rvec)
@@ -226,7 +226,7 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
 {
     v*=100.0;
     g*=100.0;//输入用国际单位制，但是运算建议用量纲长度cm，时间用s即可
-    moto_pitch/=(180.0/3.14);//电控收发都是角度制，需要转成弧度制处理
+    moto_pitch/=-(180.0/M_PI);//电控收发都是角度制，需要转成弧度制处理
     double z=tvec(1,0);
     double y=sqrt(tvec(2,0)*tvec(2,0)+tvec(0,0)*tvec(0,0));
     //y=sqrt(pow(x,2)+pow(y,2));
@@ -248,8 +248,8 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
     double angle=atan(-1.0/k);
     double moto_to_pitch=angle;
 
-    moto_move_pitch=moto_to_pitch-moto_pitch;//电控收角度制，发给他们前需要转成角度制
-    moto_move_pitch*=(180.0/3.14);
+    moto_move_pitch=moto_to_pitch/*-moto_pitch*/;//电控收角度制，发给他们前需要转成角度制
+    moto_move_pitch*=-(180.0/M_PI);
 
 
     //以下都是yaw的与pitch无关
@@ -257,42 +257,48 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
     int moto_yaw_int=floor(moto_yaw);
     double moto_yaw_flo=moto_yaw-moto_yaw_int;
 
-    if(moto_yaw_int>0) moto_yaw_int%=360;
+    if(moto_yaw_int>=0) moto_yaw_int%=360;
     else moto_yaw_int=moto_yaw_int%360+360;
     moto_yaw=moto_yaw_int+moto_yaw_flo;
-
-
-    moto_yaw/=(180.0/3.14);//电控收发都是角度制，需要转成弧度制处理
+    moto_yaw/=-(180.0/M_PI);//电控收发都是角度制，需要转成弧度制处理
 
 
     double _x2=tvec(0,0);
-    double _z2=tvec(2,0);
+    double _z2=abs(tvec(2,0))/tvec(2,0)*sqrt(pow(tvec(2,0),2)+pow(tvec(1,0),2));
+
+    //std::cout<<_x2<<" "<<_z2<<" "<<atan(_x2/_z2)<<std::endl;
 
     double moto_to_yaw=atan(_x2/_z2);
 
-    if(_z2<0&&_x2>0){
-        moto_to_yaw+=3.14;
-    }
-    else if(_z2<0&&_x2<0){
-        moto_to_yaw+=3.14;
-    }
+//    if(_z2<0&&_x2>0){
+//        //moto_to_yaw+=M_PI;
+//        std::cout<<2<<std::endl;
+//    }
+//    else if(_z2<0&&_x2<0){
+//        //moto_to_yaw+=M_PI;
+//        std::cout<<3<<std::endl;
+//    }
 
-   else if(_z2>0&&_x2<0){
-       moto_to_yaw+=6.28;
-   }
+//   else if(_z2>0&&_x2<0){
+//       //moto_to_yaw+=6.28;
+//       std::cout<<4<<std::endl;
+//   }
+//    else{
+//        std::cout<<1<<std::endl;
+//    }
 
-   std::cout<<"moto_to_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_to_yaw*(180.0/3.14)<<std::endl;
+   //std::cout<<"moto_to_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_to_yaw*(180.0/M_PI)<<std::endl;
 
 
-    moto_move_yaw=-(moto_to_yaw-moto_yaw);
-    moto_move_yaw*=(180.0/3.14);//已转成角度制
-    std::cout<<"moto_move_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_move_yaw<<std::endl;
+    moto_move_yaw=(moto_to_yaw/*+moto_yaw*/);
+    moto_move_yaw*=-(180.0/M_PI);//已转成角度制//符号协商
+    //std::cout<<"moto_move_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_move_yaw<<std::endl;
 
-    if(abs(moto_move_yaw)>270){
-        std::cout<<"moto_move_yaw error!!!!!!!!"<<std::endl;
-        moto_move_yaw=-moto_move_yaw/abs(moto_move_yaw)*360.0+moto_move_yaw;
-    }
-    //moto_move_yaw=0;
+//    if(abs(moto_move_yaw)>340.0){
+//        //std::cout<<"moto_move_yaw error!!!!!!!!"<<std::endl;
+//        moto_move_yaw=-moto_move_yaw/abs(moto_move_yaw)*360.0+moto_move_yaw;
+//    }
+//    moto_move_yaw=0;
     //需要相机和电机的位置,不懂就去翻机械原理！！！(或者理论力学动力学部分)
 }
 void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, Eigen::Vector3d tvec, Eigen::Vector3d rvec,Eigen::Vector3d &moto_tvec)
@@ -308,8 +314,8 @@ void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, 
 //    Eigen::Vector3d tvec_in_camera;
 //    tvec_in_camera=-rodrigus_mat*tvec;
 //    moto_tvec=tvec_in_camera;
-    double a=-moto_pitch/(180.0/3.14);
-    double b=-moto_yaw/(180.0/3.14);//此处符号是因为英雄坐标系与步兵不一样，到时候根据情况协商
+    double a=-moto_pitch/(180.0/M_PI);
+    double b=-moto_yaw/(180.0/M_PI);//此处符号是因为英雄坐标系与步兵不一样，到时候根据情况协商
 
     Eigen::Matrix3d rotated_mat;
     rotated_mat<<cos(a)       ,sin(a)       ,0.0   ,

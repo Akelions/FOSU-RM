@@ -26,7 +26,7 @@ BuffObject buff_object;
 
 MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
 bool flag_detector=false;
-bool flag_predict=true;
+bool flag_predictor=true;
 
 PackData pack_data;
 UnpackData unpack_data;
@@ -79,7 +79,6 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 
 
     while(1){
-        //*flag1=false;
         MVVideoCapture::GetFrame(*src);
         if((*src).empty()){
             std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
@@ -117,8 +116,10 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
          ad.detect((*src),objects);
          detector_tool=DetectorTool(objects,(bool)(*main_settings).enemy_color^1);
          //best_object=&objects[0];
-         
-         while(*flag2==false) sleep(1);
+         if(*flag2==false){
+             *flag1=true;
+             continue;
+         }
          *flag1=false;
 
          for(int i=0;i<8;i++){
@@ -168,6 +169,8 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 #endif
          }
 
+
+
        }
        else if((*main_settings).main_mode == 1){
         //rune_detector
@@ -196,14 +199,15 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
     static int lost_flag=0;
     static double during_time=2.0;
     double predict_time=during_time+*running_time;//s
-    
+    static ArmorPredictTool armor_predict_tool;
+    armor_predict_tool.kalmanInit();
 
-    
+    while(1){
 
         if(*flag1==false){
             //sleep(1);
             *flag2=true;
-            return;
+            continue;
         }
         *flag2=false;
 
@@ -211,40 +215,41 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
         double time1=cv::getTickCount();
         if((*main_settings).main_mode == 0){
             if(cars_radio==NULL&&object_addr==NULL&&cars_map==NULL&&running_time==NULL){
-                *flag2=true;
-                return;
+                continue;
             }
 
-//            double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
-//            double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
-            double moto_pitch_angle=0.0;
-            double moto_yaw_angle=0.0;
+            double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
+            double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
+//            double moto_pitch_angle=20.0;
+//            double moto_yaw_angle=0.0;
             double bullet_speed=unpack_data->getStm2PcMesg()->stm32_info_data.bullet_level;
-            static ArmorPredictTool armor_predict_tool(*angle_solver,moto_pitch_angle,moto_yaw_angle, cars_radio,object_addr,cars_map,bullet_speed,predict_time);
+
+            armor_predict_tool.inputData(*angle_solver,moto_pitch_angle,moto_yaw_angle, cars_radio,object_addr,cars_map,bullet_speed,predict_time);
 
             if(armor_predict_tool.predictArmor()){
 
-//                lost_flag=0;
-//                (*angle_solver).Camera2Moto(moto_pitch_angle,moto_yaw_angle,armor_predict_tool.tvec_armor,moto_move_pitch,moto_move_yaw,bullet_speed,9.8);
-//                last_pitch=moto_move_pitch;
-//                last_yaw=moto_move_yaw;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=moto_move_pitch;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=moto_move_yaw;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
-//                pack_data->processing(serial);
+                lost_flag=0;
+                (*angle_solver).Camera2Moto(moto_pitch_angle,moto_yaw_angle,armor_predict_tool.tvec_armor,moto_move_pitch,moto_move_yaw,bullet_speed,9.8);
+                last_pitch=moto_move_pitch;
+                last_yaw=moto_move_yaw;
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=moto_move_pitch;
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=moto_move_yaw;
+                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
+                pack_data->process(serial);
+                //std::cout<<moto_move_pitch<<std::endl;
             }
             else if(lost_flag<=4){
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=last_pitch;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=last_yaw;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
-//                pack_data->processing(serial);
-//                lost_flag++;
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=last_pitch;
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=last_yaw;
+                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
+                pack_data->process(serial);
+                lost_flag++;
             }
             else{
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=0;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=0;
-//                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=0;
-//                pack_data->processing(serial);
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=0;
+                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=0;
+                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=0;
+                pack_data->process(serial);
             }
         }
 
@@ -261,25 +266,26 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=moto_move_pitch;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=moto_move_yaw;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
-//                pack_data->processing(serial);
+//                pack_data->process(serial);
 //            }
 //            else if(lost_flag<=4){
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=last_pitch;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=last_yaw;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
-//                pack_data->processing(serial);
+//                pack_data->process(serial);
 //                lost_flag++;
 //            }
 //            else{
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=0;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=0;
 //                pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=0;
-//                pack_data->processing(serial);
+//                pack_data->process(serial);
 //            }
 //        }
         double time2=cv::getTickCount();
         during_time=(time2-time1)/cv::getTickFrequency();//s
         *flag2=true;
+    }
 
 }
 
@@ -315,9 +321,7 @@ int main(){
     std::thread st(&UnpackData::processing, p_unpack_data, &serial);
     dt.detach();
     st.detach();
-    while(1){
-        predictThread(&main_settings,&angle_solver,cars_radio,&armor_object,&buff_object,cars_map,&running_time,&pack_data,&unpack_data,&serial,&flag_detector,&flag_predictor);
-    }
+    predictThread(&main_settings,&angle_solver,cars_radio,&armor_object,&buff_object,cars_map,&running_time,&pack_data,&unpack_data,&serial,&flag_detector,&flag_predictor);
 #ifdef DEBUG_MODE
 //      while(1){
 //        cv::Mat src_clone=src.clone();

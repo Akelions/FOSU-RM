@@ -17,6 +17,7 @@ using namespace buff_detector;
 class ArmorPredictTool
 {
 public:
+    ArmorPredictTool();
     ArmorPredictTool(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
     std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time);
 
@@ -26,8 +27,13 @@ public:
     bool predictMove();
     bool stateAdd();
     bool predictArmor();
+    void kalmanInit();
+    void inputData(AngleSolver angle_solver,double moto_pitch,double moto_yaw, double *cars_radio,ArmorObject* object_addr,
+                   std::vector<ArmorObject> *cars_map,double bullet_speed,double running_time);
 
     Eigen::Vector3d tvec_armor;
+
+
 
 
 
@@ -59,7 +65,7 @@ private:
     
 
 
-    bool switch_y;    
+    bool switch_y=0;
     double running_time;
     double bullet_speed;
 
