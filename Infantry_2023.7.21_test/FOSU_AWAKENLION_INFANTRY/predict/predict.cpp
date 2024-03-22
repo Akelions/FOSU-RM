@@ -167,47 +167,52 @@ bool ArmorPredictTool::predictRotated()
     angles.push_back(this->car_angle);
 //    std::cout<<car_angle*180.0/M_PI<<std::endl;
 
-       if(angles.size()>=3){
-            angles.erase(angles.begin());
-            this->angle_predict=car_angle;
+       if(angles.size()>=4){
+           angles.erase(angles.begin());
+            
+           Eigen::Vector2d _angle;
+           Eigen::Vector2d _anglep;
 
-//            Eigen::Vector2d _angle;
-//            Eigen::Vector2d _anglep;
+           if(running_time<=0) running_time=1.0;
+           double v1=(angles[2]-angles[1])/running_time;
+           double v2=(angles[1]-angles[0])/running_time;
+           double v=(v1+v2)/2.0;
+           double a=(v1-v2)/running_time;
 
 
-//            if(running_time<=0) running_time=1.0;
-//            _angle << angles[1]-angles[0],(angles[1]-angles[0])/running_time;
-//            _anglep=angle_kalman.update(_angle,running_time);
-//            //std::cout<<"_anglep"<<_anglep<<std::endl;
-//           this->angle_predict=angles[1]+_anglep(0,0);
-//            if(angle_predict<M_PI/4.0){
-//                if(_anglep(1,0)<-1.57&&angle_predict>0.0){
-//                    angle_predict+=M_PI/2.0;
-//                    this->switch_y=1;
-//                }
-//                else if(_anglep(1,0)<-1.57&&angle_predict<0.0){
-//                    angle_predict+=M_PI;
-//                    this->switch_y=0;
-//                }
-//                else if(angle_predict<M_PI/4.3){
-//                    angle_predict+=M_PI/2.0;
-//                    this->switch_y=1;
-//                }
-//            }
-//            else if(angle_predict>M_PI*3.0/4.0){
-//                if(_anglep(1,0)>1.57&&angle_predict<M_PI){
-//                    angle_predict-=M_PI/2.0;
-//                    this->switch_y=1;
-//                }
-//                else if(_anglep(1,0)>1.57&&angle_predict>M_PI){
-//                    angle_predict-=M_PI;
-//                    this->switch_y=0;
-//                }
-//                else if(angle_predict>M_PI*3.6/4.0){
-//                    angle_predict+=M_PI/2.0;
-//                    this->switch_y=1;
-//                }
-//            }
+           _angle << v,a;
+           _anglep=angle_kalman.update(_angle,running_time);
+           //std::cout<<"_anglep"<<_anglep<<std::endl;
+          this->angle_predict=angles[1] + _anglep(0,0) * running_time + _anglep(1,0) * running_time*running_time/2.0;
+
+           if(angle_predict<M_PI/4.0){
+               if(_anglep(1,0)<-1.57&&angle_predict>0.0){
+                   angle_predict+=M_PI/2.0;
+                   this->switch_y=1;
+               }
+               else if(_anglep(1,0)<-1.57&&angle_predict<0.0){
+                   angle_predict+=M_PI;
+                   this->switch_y=0;
+               }
+               else if(angle_predict<M_PI/4.3){
+                   angle_predict+=M_PI/2.0;
+                   this->switch_y=1;
+               }
+           }
+           else if(angle_predict>M_PI*3.0/4.0){
+               if(_anglep(1,0)>1.57&&angle_predict<M_PI){
+                   angle_predict-=M_PI/2.0;
+                   this->switch_y=1;
+               }
+               else if(_anglep(1,0)>1.57&&angle_predict>M_PI){
+                   angle_predict-=M_PI;
+                   this->switch_y=0;
+               }
+               else if(angle_predict>M_PI*3.6/4.0){
+                   angle_predict+=M_PI/2.0;
+                   this->switch_y=1;
+               }
+           }
             //std::cout<<"angle_predict"<<angle_predict*180.0/M_PI<<std::endl;
             return true;
     }
@@ -228,43 +233,45 @@ bool ArmorPredictTool::predictMove()
 
 
 
-       if(x_store.size()>=3){
+       if(x_store.size()>=4){
         x_store.erase(x_store.begin());
         y_store.erase(y_store.begin());
         z_store.erase(z_store.begin());
 
-        car_predict=car_tvec;
 
 
-//           Eigen::Vector2d _X;
-//           Eigen::Vector2d _Y;
-//           Eigen::Vector2d _Z;
-//           Eigen::Vector2d _Xp;
-//           Eigen::Vector2d _Yp;
-//           Eigen::Vector2d _Zp;
+          Eigen::Vector2d _X;
+          Eigen::Vector2d _Y;
+          Eigen::Vector2d _Z;
+          Eigen::Vector2d _Xp;
+          Eigen::Vector2d _Yp;
+          Eigen::Vector2d _Zp;
 
-//           if(this->running_time<=0) this->running_time=0.5;
+          if(this->running_time<=0) this->running_time=0.5;
 
-//           _X<< (x_store[1]-x_store[0]),(x_store[1]-x_store[0])/this->running_time;
-//           _Y<< (y_store[1]-y_store[0]),(y_store[1]-y_store[0])/this->running_time;
-//           _Z<< (z_store[1]-z_store[0]),(z_store[1]-z_store[0])/this->running_time;
+          double vx1=(x_store[2]-x_store[1])/running_time;
+          double vy1=(y_store[2]-y_store[1])/running_time;
+          double vz1=(z_store[2]-z_store[1])/running_time;
+          double vx2=(x_store[1]-x_store[0])/running_time;
+          double vy2=(y_store[1]-y_store[0])/running_time;
+          double vz2=(z_store[1]-z_store[0])/running_time;
+          double ax=(vx1-vx2)/running_time;
+          double ay=(vy1-vy2)/running_time;
+          double az=(vz1-vz2)/running_time;
+          _X << vx1,ax;
+          _Y << vy1,ay;
+          _Z << vz1,az;
 
+          _Xp=car_kalman_x.update(_X,this->running_time);
+          _Yp=car_kalman_y.update(_Y,this->running_time);
+          _Zp=car_kalman_z.update(_Z,this->running_time);
 
-
-
-//           _Xp=car_kalman_x.update(_X,this->running_time);
-//           _Yp=car_kalman_y.update(_Y,this->running_time);
-//           _Zp=car_kalman_z.update(_Z,this->running_time);
-
-//           //std::cout<<"_Xp"<<_Xp<<std::endl;
-
+          double x=car_tvec(0,0) + _Xp(0,0) * running_time + 0.5 * _Xp(1,0) * running_time * running_time;
+          double y=car_tvec(1,0) + _Yp(0,0) * running_time + 0.5 * _Yp(1,0) * running_time * running_time;
+          double z=car_tvec(2,0) + _Zp(0,0) * running_time + 0.5 * _Zp(1,0) * running_time * running_time;
            
-//           car_predict<< car_tvec(0,0)+_Xp(0,0),car_tvec(1,0)+_Yp(0,0),car_tvec(2,0)+_Zp(0,0);
+          car_predict << x,y,z; 
 //           std::cout<<"car_predict"<<car_predict<<std::endl;
-
-////           cout<<"_Xp(0,0)!!!!!!!!!!!!!!!!"<<_Xp(0,0)<<endl;
-////           cout<<"_Yp(0,0)!!!!!!!!!!!!!!!!"<<_Yp(0,0)<<endl;
-////           cout<<"_Zp(0,0)!!!!!!!!!!!!!!!!"<<_Zp(0,0)<<endl;
            return true;
        }
        else return false;
@@ -297,10 +304,10 @@ void ArmorPredictTool::kalmanInit(){
         Eigen::Matrix2d R;
         for(int i=0;i<2;++i)
         {
-            R(i,i)=100;
+            R(i,i)=0.1;
         }
-        Eigen::Vector2d Q{0.1,0.1};
-        Eigen::Vector2d init{0,0};
+        Eigen::Matrix2d Q{0.1,0.1,0.1,0.1};
+        Eigen::Vector2d init{0.0,0.0};
         angle_kalman = Armor_Kalman(A,H,R,Q,init,0);
         car_kalman_x = Armor_Kalman(A,H,R,Q,init,0);
         car_kalman_y = Armor_Kalman(A,H,R,Q,init,0);

@@ -249,7 +249,7 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
     double moto_to_pitch=angle;
 
     moto_move_pitch=moto_to_pitch/*-moto_pitch*/;//电控收角度制，发给他们前需要转成角度制
-    moto_move_pitch*=-(180.0/M_PI);
+    moto_move_pitch*=(180.0/M_PI);
 
 
     //以下都是yaw的与pitch无关
@@ -264,7 +264,7 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
 
 
     double _x2=tvec(0,0);
-    double _z2=abs(tvec(2,0))/tvec(2,0)*sqrt(pow(tvec(2,0),2)+pow(tvec(1,0),2));
+    double _z2=abs(tvec(2,0))/tvec(2,0)*sqrt(pow(tvec(2,0),2)+pow(tvec(1,0),2));//?????
 
     //std::cout<<_x2<<" "<<_z2<<" "<<atan(_x2/_z2)<<std::endl;
 
@@ -291,7 +291,7 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
 
 
     moto_move_yaw=(moto_to_yaw/*+moto_yaw*/);
-    moto_move_yaw*=-(180.0/M_PI);//已转成角度制//符号协商
+    moto_move_yaw*=(180.0/M_PI);//已转成角度制//符号协商
     //std::cout<<"moto_move_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_move_yaw<<std::endl;
 
 //    if(abs(moto_move_yaw)>340.0){
@@ -303,24 +303,25 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
 }
 void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, Eigen::Vector3d tvec, Eigen::Vector3d rvec,Eigen::Vector3d &moto_tvec)
 {
-//    cv::Mat rvec_temp=(cv::Mat_<double>(3,1)<<rvec(0,0),rvec(1,0),rvec(2,0));
-//    //cv::Mat tvec_mat=(cv::Mat_<double>(3,1)<<tvec(0,0),tvec(1,0),tvec(2,0));
-//    cv::Mat rm;
-//    cv::Rodrigues(rvec_temp,rm);
-//    Eigen::Matrix3d rodrigus_mat;
-//    rodrigus_mat<<rm.at<double>(0,0),rm.at<double>(0,1),rm.at<double>(0,2),
-//            rm.at<double>(1,0),rm.at<double>(1,1),rm.at<double>(1,2),
-//            rm.at<double>(2,0),rm.at<double>(2,1),rm.at<double>(2,2);
-//    Eigen::Vector3d tvec_in_camera;
-//    tvec_in_camera=-rodrigus_mat*tvec;
-//    moto_tvec=tvec_in_camera;
+
+    Eigen::Vector3d oc_tvec;
+    oc_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
+
     double a=-moto_pitch/(180.0/M_PI);
     double b=-moto_yaw/(180.0/M_PI);//此处符号是因为英雄坐标系与步兵不一样，到时候根据情况协商
-
-    Eigen::Matrix3d rotated_mat;
-    rotated_mat<<cos(a)       ,sin(a)       ,0.0   ,
-                -cos(b)*sin(a),cos(b)*cos(a),sin(b),
-                sin(b)*sin(a),-sin(b)*sin(a),cos(b);
+    double rotationAngle2 = a;
+    Eigen::Vector3d rotationAxis2(1.0, 0.0, 0.0);  // 绕X轴旋转
+    rotationAxis2.normalize();
+  
+    double rotationAngle1 = b;
+    Eigen::Vector3d rotationAxis1(0.0, 1.0, 0.0);  // 绕Y轴旋转
+    rotationAxis1.normalize();
+  
+    Eigen::AngleAxisd rotation1(rotationAngle1, rotationAxis1);
+    Eigen::AngleAxisd rotation2(rotationAngle2, rotationAxis2);
+  
+    Eigen::Matrix3d rotationMatrix1 = rotation1.toRotationMatrix();
+    Eigen::Matrix3d rotationMatrix2 = rotation2.toRotationMatrix();
 
 
     Eigen::Vector3d camera_tvec;
@@ -329,7 +330,7 @@ void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, 
     double yc=PCBD*sin(a);
     camera_tvec<<xc,yc,zc;
 
-    moto_tvec=camera_tvec+rotated_mat*tvec;
+    moto_tvec=camera_tvec + rotationMatrix2*rotationMatrix1*tvec;
     //moto_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
 
 

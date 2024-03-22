@@ -3,6 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include <unistd.h>
 #include <ctime>
+#include <mutex>
 
 #include "Settings/Settings.h"
 #include "AngleSolver/PnpSolver.h"
@@ -15,18 +16,23 @@
 
 using namespace buff_detector;
 
-cv::Mat src;
-ArmorObject armor_object;
-AngleSolver angle_solver(PARAM_CALIBRATION_752);
-std::vector<ArmorObject> cars_map[8];
-double cars_radio[8]={0,0,0,0,0,0,53.7,0};
-double running_time=2.0;
+struct AimData{
+    cv::Mat src;
+    ArmorObject armor_object;
+    AngleSolver angle_solver(PARAM_CALIBRATION_752);
+    std::vector<ArmorObject> cars_map[8];
+    double cars_radio[8]={0,0,0,0,0,0,53.7,0};
+    double running_time=2.0;
 
-BuffObject buff_object;
+    BuffObject buff_object;
 
-MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
-bool flag_detector=false;
-bool flag_predictor=true;
+    MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
+    bool flag_detector=false;
+    bool flag_predictor=true;
+};
+
+AimData aim_data;
+std::mutex mtx;//互斥锁
 
 PackData pack_data;
 UnpackData unpack_data;
@@ -34,37 +40,8 @@ UnpackData *p_unpack_data = &unpack_data;
 Serial serial(main_settings.port_param);
 
 
+void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
 
-
-void cameraThread(cv::Mat *src){
-
-//        std::cout << "MVVideoCapture Init" << std::endl;
-//        if(-1 == MVVideoCapture::Init())
-//        {
-//            std::cout << "MVVideoCapture ERROR!!!" << std::endl;
-//            return;
-//        }
-//        else{
-//            MVVideoCapture::Play();
-//            MVVideoCapture::SetExposureTime(true, (/*main_settings.debug.expore_time*/1200)*0.7);
-//            MVVideoCapture::SetLargeResolution(true);
-//            std::cout << "MVVideoCapture Finished!" << std::endl;
-
-//            while(1){
-//                MVVideoCapture::GetFrame(*src);
-//                if((*src).empty()){
-//                    std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-//                }
-//                else{
-//                    cv::imshow("src",(*src));
-//                    cv::waitKey(1);
-//                }
-//            }
-
-//      }
-}
-void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_object,BuffObject *buff_object,double *running_time,
-                  AngleSolver *angle_solver,std::vector<ArmorObject> *cars_map,UnpackData *unpack_data,bool *flag1,bool *flag2){
 
     ArmorDetector ad;
     std::vector<ArmorObject> objects;
@@ -79,17 +56,17 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 
 
     while(1){
-        MVVideoCapture::GetFrame(*src);
-        if((*src).empty()){
+        MVVideoCapture::GetFrame((*p_aim_data).src);
+        if(((*p_aim_data).src).empty()){
             std::cout<<"!!!!!!!!!!!!!!!!!!!!"<<std::endl;
         }
         else{
-            cv::resize(*src,*src,cv::Size(640,480));
-            cv::imshow("src",(*src));
+            cv::resize((*p_aim_data).src,(*p_aim_data).src,cv::Size(640,480));
+            cv::imshow("src",((*p_aim_data).src));
             cv::waitKey(1);
         }
 
-        if((*src).empty()){
+        if(((*p_aim_data).src).empty()){
             std::cout<<"src is empty"<<endl;
             
             sleep(1);
@@ -111,19 +88,14 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 //           (*main_settings).main_mode = unpack_data->getStm2PcMesg()->stm32_info_data.task_mode;
 
 
-       if((*main_settings).main_mode == 0){
+       if((*p_aim_data).main_settings.main_mode == 0){
 
-         ad.detect((*src),objects);
-         detector_tool=DetectorTool(objects,(bool)(*main_settings).enemy_color^1);
+         ad.detect(((*p_aim_data).src),objects);
+         detector_tool=DetectorTool(objects,(bool)(*p_aim_data).main_settings.enemy_color^1);
          //best_object=&objects[0];
-         if(*flag2==false){
-             *flag1=true;
-             continue;
-         }
-         *flag1=false;
 
          for(int i=0;i<8;i++){
-             cars_map[i]=detector_tool.cars_map[i];
+             (*p_aim_data).cars_map[i]=detector_tool.cars_map[i];
          }
 
 
@@ -131,17 +103,16 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 
              if(best_object.color==1||best_object.color==3){
 
-                 (*angle_solver).setTargetSize(23.1,5.7);//big
+                 (*p_aim_data).angle_solver.setTargetSize(23.1,5.7);//big
              }
              else{
 
-                 (*angle_solver).setTargetSize(15.3,5.7);//small
+                 (*p_aim_data).angle_solver.setTargetSize(15.3,5.7);//small
              }
-             *armor_object=best_object;
+             (*p_aim_data).armor_object=best_object;
 
              double time2=cv::getTickCount();
-             *running_time=(time2-time1)/cv::getTickFrequency();//s
-             *flag1=true;
+             (*p_aim_data).running_time=(time2-time1)/cv::getTickFrequency();//s             
 #ifdef DEBUG_MODE
        cv::Mat src_clone=(*src).clone();
        std::vector<cv::Scalar> color_list;
@@ -169,28 +140,24 @@ void detectThread(MainSettings *main_settings,cv::Mat *src,ArmorObject *armor_ob
 #endif
          }
 
-
-
        }
        else if((*main_settings).main_mode == 1){
         //rune_detector
-           bd.detect((*src),bobjects);
+           bd.detect((*p_aim_data).src,bobjects);
            double time2=cv::getTickCount();
-           *running_time=(time2-time1)/cv::getTickFrequency();//s
+           (*p_aim_data).running_time=(time2-time1)/cv::getTickFrequency();//s
            for(auto fan:bobjects){
                if(fan.cls==0){
-                   *buff_object=fan;
-                   *flag1=true;
+                   (*p_aim_data).buff_object=fan;
                    break;
                }
            }
        }
+       mtx.unlock();
      }
 }
 
-void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double *cars_radio,ArmorObject *object_addr, BuffObject *buff_object,
-                   std::vector<ArmorObject> *cars_map,double *running_time,
-                   PackData *pack_data,UnpackData *unpack_data,Serial *serial,bool *flag1,bool *flag2){
+void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_data,Serial *serial){
     Eigen::Vector3d moto_tvec;
     double moto_move_pitch;
     double moto_move_yaw;
@@ -203,33 +170,25 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
     armor_predict_tool.kalmanInit();
 
     while(1){
-
-        if(*flag1==false){
-            //sleep(1);
-            *flag2=true;
-            continue;
-        }
-        *flag2=false;
-
-
+        mtx.lock();
         double time1=cv::getTickCount();
         if((*main_settings).main_mode == 0){
             if(cars_radio==NULL&&object_addr==NULL&&cars_map==NULL&&running_time==NULL){
                 continue;
             }
 
-            double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
-            double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
-//            double moto_pitch_angle=20.0;
-//            double moto_yaw_angle=0.0;
+            // double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
+            // double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
+           double moto_pitch_angle=20.0;
+           double moto_yaw_angle=0.0;
             double bullet_speed=unpack_data->getStm2PcMesg()->stm32_info_data.bullet_level;
 
-            armor_predict_tool.inputData(*angle_solver,moto_pitch_angle,moto_yaw_angle, cars_radio,object_addr,cars_map,bullet_speed,predict_time);
+            armor_predict_tool.inputData((*p_aim_data).angle_solver,moto_pitch_angle,moto_yaw_angle,(*p_aim_data).cars_radio,&((*p_aim_data).armor_object),(*p_aim_data).cars_map,bullet_speed,predict_time);
 
             if(armor_predict_tool.predictArmor()){
 
                 lost_flag=0;
-                (*angle_solver).Camera2Moto(moto_pitch_angle,moto_yaw_angle,armor_predict_tool.tvec_armor,moto_move_pitch,moto_move_yaw,bullet_speed,9.8);
+                (*p_aim_data).angle_solver.Camera2Moto(moto_pitch_angle,moto_yaw_angle,armor_predict_tool.tvec_armor,moto_move_pitch,moto_move_yaw,bullet_speed,9.8);
                 last_pitch=moto_move_pitch;
                 last_yaw=moto_move_yaw;
                 pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=moto_move_pitch;
@@ -284,7 +243,7 @@ void predictThread(MainSettings *main_settings,AngleSolver *angle_solver, double
 //        }
         double time2=cv::getTickCount();
         during_time=(time2-time1)/cv::getTickFrequency();//s
-        *flag2=true;
+        mtx.unlock();
     }
 
 }
@@ -317,11 +276,11 @@ int main(){
     //main_settings.setCameraParam(WIN_CAMERA);
 #endif
 
-    std::thread dt(detectThread,&main_settings,&src,&armor_object,&buff_object,&running_time,&angle_solver,cars_map,&unpack_data,&flag_detector,&flag_predictor);
+    std::thread dt(detectThread,&aim_data,&unpack_data);
     std::thread st(&UnpackData::processing, p_unpack_data, &serial);
     dt.detach();
     st.detach();
-    predictThread(&main_settings,&angle_solver,cars_radio,&armor_object,&buff_object,cars_map,&running_time,&pack_data,&unpack_data,&serial,&flag_detector,&flag_predictor);
+    predictThread(&aim_data,&pack_data,&unpack_data,&serial);
 #ifdef DEBUG_MODE
 //      while(1){
 //        cv::Mat src_clone=src.clone();
