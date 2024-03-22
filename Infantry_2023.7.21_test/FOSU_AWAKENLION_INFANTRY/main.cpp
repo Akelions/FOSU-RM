@@ -19,30 +19,33 @@ using namespace buff_detector;
 struct AimData{
     cv::Mat src;
     ArmorObject armor_object;
-    AngleSolver angle_solver(PARAM_CALIBRATION_752);
+    AngleSolver angle_solver=AngleSolver(PARAM_CALIBRATION_752);
     std::vector<ArmorObject> cars_map[8];
     double cars_radio[8]={0,0,0,0,0,0,53.7,0};
     double running_time=2.0;
 
     BuffObject buff_object;
 
-    MainSettings main_settings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
+    MainSettings main_settings=MainSettings(PARAM_OTHER_PATH,PARAM_CAMERA_PATH);
     bool flag_detector=false;
     bool flag_predictor=true;
 };
 
 AimData aim_data;
-std::mutex mtx;//互斥锁
 
 PackData pack_data;
 UnpackData unpack_data;
 UnpackData *p_unpack_data = &unpack_data;
-Serial serial(main_settings.port_param);
+Serial serial(aim_data.main_settings.port_param);
+
+void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_data,Serial *serial);
+void detectThread(AimData *p_aim_data,PackData *pack_data,UnpackData *unpack_data,Serial *serial){
 
 
-void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
-
-
+#ifdef DEBUG_MODE
+    (*p_aim_data).main_settings.setMainParam(WIN_OTHER);
+    //main_settings.setCameraParam(WIN_CAMERA);
+#endif
     ArmorDetector ad;
     std::vector<ArmorObject> objects;
     std::vector<BuffObject> bobjects;
@@ -76,17 +79,16 @@ void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
         
 
        double time1=cv::getTickCount();
-//        //获取裁判系统敌方装甲板颜色
-//       if(unpack_data->getStm2PcMesg()->stm32_info_data.robot_color == 1){
-//           (*main_settings).enenmy_color=red;
-//       }
-//       else if(unpack_data->getStm2PcMesg()->stm32_info_data.robot_color == 2){
-//           (*main_settings).enemy_color=blue;
-//       }
-//       // 接收电控发送的模式切换(比赛前切记打开)
-//       if(!std::isnan(unpack_data->getStm2PcMesg()->stm32_info_data.task_mode))
-//           (*main_settings).main_mode = unpack_data->getStm2PcMesg()->stm32_info_data.task_mode;
-
+        //获取裁判系统敌方装甲板颜色
+       if(unpack_data->getStm2PcMesg()->stm32_info_data.robot_color == 1){
+           (*p_aim_data).main_settings.enemy_color=red;
+       }
+       else if(unpack_data->getStm2PcMesg()->stm32_info_data.robot_color == 2){
+           (*p_aim_data).main_settings.enemy_color=blue;
+       }
+       // 接收电控发送的模式切换(比赛前切记打开)
+       if(!std::isnan(unpack_data->getStm2PcMesg()->stm32_info_data.task_mode))
+           (*p_aim_data).main_settings.main_mode = unpack_data->getStm2PcMesg()->stm32_info_data.task_mode;
 
        if((*p_aim_data).main_settings.main_mode == 0){
 
@@ -114,7 +116,7 @@ void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
              double time2=cv::getTickCount();
              (*p_aim_data).running_time=(time2-time1)/cv::getTickFrequency();//s             
 #ifdef DEBUG_MODE
-       cv::Mat src_clone=(*src).clone();
+       cv::Mat src_clone=(*p_aim_data).src.clone();
        std::vector<cv::Scalar> color_list;
        color_list.push_back(cv::Scalar(255,0,0));
        color_list.push_back(cv::Scalar(0,255,0));
@@ -133,7 +135,7 @@ void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
         }
 
        std::stringstream time;
-       time<<1.0/(*running_time);
+       time<<1.0/(*p_aim_data).running_time;
        cv::putText(src_clone, "fps: " + time.str(), cv::Point(50,50), cv::FONT_HERSHEY_COMPLEX, 0.9, cv::Scalar(0, 255, 0));
        cv::imshow("best_armor",src_clone);
        cv::waitKey(1);
@@ -141,7 +143,7 @@ void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
          }
 
        }
-       else if((*main_settings).main_mode == 1){
+       else if((*p_aim_data).main_settings.main_mode == 1){
         //rune_detector
            bd.detect((*p_aim_data).src,bobjects);
            double time2=cv::getTickCount();
@@ -153,7 +155,7 @@ void detectThread(AimData *p_aim_data,UnpackData *unpack_data){
                }
            }
        }
-       mtx.unlock();
+       predictThread(p_aim_data,pack_data,unpack_data,serial);
      }
 }
 
@@ -165,22 +167,17 @@ void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_d
     static double last_yaw=0;
     static int lost_flag=0;
     static double during_time=2.0;
-    double predict_time=during_time+*running_time;//s
+    double predict_time=during_time+(*p_aim_data).running_time;//s
     static ArmorPredictTool armor_predict_tool;
     armor_predict_tool.kalmanInit();
 
-    while(1){
-        mtx.lock();
         double time1=cv::getTickCount();
-        if((*main_settings).main_mode == 0){
-            if(cars_radio==NULL&&object_addr==NULL&&cars_map==NULL&&running_time==NULL){
-                continue;
-            }
+        if((*p_aim_data).main_settings.main_mode == 0){
 
-            // double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
-            // double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
-           double moto_pitch_angle=20.0;
-           double moto_yaw_angle=0.0;
+             double moto_pitch_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_pitch;
+             double moto_yaw_angle=unpack_data->getStm2PcMesg()->stm32_info_data.robot_yaw;
+//           double moto_pitch_angle=20.0;
+//           double moto_yaw_angle=361.0;
             double bullet_speed=unpack_data->getStm2PcMesg()->stm32_info_data.bullet_level;
 
             armor_predict_tool.inputData((*p_aim_data).angle_solver,moto_pitch_angle,moto_yaw_angle,(*p_aim_data).cars_radio,&((*p_aim_data).armor_object),(*p_aim_data).cars_map,bullet_speed,predict_time);
@@ -195,7 +192,7 @@ void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_d
                 pack_data->setPc2StmMesg()->gimbal_control_data.aim_yaw=moto_move_yaw;
                 pack_data->setPc2StmMesg()->gimbal_control_data.mode_Union.info.visual_valid=1;
                 pack_data->process(serial);
-                //std::cout<<moto_move_pitch<<std::endl;
+                std::cout<<moto_move_yaw<<std::endl;
             }
             else if(lost_flag<=4){
                 pack_data->setPc2StmMesg()->gimbal_control_data.aim_pitch=last_pitch;
@@ -243,9 +240,7 @@ void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_d
 //        }
         double time2=cv::getTickCount();
         during_time=(time2-time1)/cv::getTickFrequency();//s
-        mtx.unlock();
-    }
-
+//        std::cout<<"predict_fps"<<1/during_time<<std::endl;
 }
 
 
@@ -255,7 +250,6 @@ void predictThread(AimData* p_aim_data, PackData *pack_data,UnpackData *unpack_d
 
 
 int main(){
-
     serial.openPort("/dev/ttyACM0");
     std::cout << "MVVideoCapture Init" << std::endl;
     if(-1 == MVVideoCapture::Init())
@@ -271,16 +265,10 @@ int main(){
     }
 
 
-#ifdef DEBUG_MODE
-    main_settings.setMainParam(WIN_OTHER);
-    //main_settings.setCameraParam(WIN_CAMERA);
-#endif
-
-    std::thread dt(detectThread,&aim_data,&unpack_data);
+    std::thread dt(detectThread,&aim_data,&pack_data,&unpack_data,&serial);
     std::thread st(&UnpackData::processing, p_unpack_data, &serial);
-    dt.detach();
-    st.detach();
-    predictThread(&aim_data,&pack_data,&unpack_data,&serial);
+    dt.join();
+    st.join();
 #ifdef DEBUG_MODE
 //      while(1){
 //        cv::Mat src_clone=src.clone();

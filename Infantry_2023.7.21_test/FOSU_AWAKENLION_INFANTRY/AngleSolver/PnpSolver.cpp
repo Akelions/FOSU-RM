@@ -248,8 +248,8 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
     double angle=atan(-1.0/k);
     double moto_to_pitch=angle;
 
-    moto_move_pitch=moto_to_pitch/*-moto_pitch*/;//电控收角度制，发给他们前需要转成角度制
-    moto_move_pitch*=(180.0/M_PI);
+    moto_move_pitch=moto_to_pitch-moto_pitch;//电控收角度制，发给他们前需要转成角度制
+    moto_move_pitch*=-(180.0/M_PI);
 
 
     //以下都是yaw的与pitch无关
@@ -270,35 +270,34 @@ void AngleSolver::Camera2Moto(double moto_pitch, double moto_yaw , Eigen::Vector
 
     double moto_to_yaw=atan(_x2/_z2);
 
-//    if(_z2<0&&_x2>0){
-//        //moto_to_yaw+=M_PI;
-//        std::cout<<2<<std::endl;
-//    }
-//    else if(_z2<0&&_x2<0){
-//        //moto_to_yaw+=M_PI;
-//        std::cout<<3<<std::endl;
-//    }
+    if(_z2<0&&_x2>0){
+        moto_to_yaw-=M_PI;
+        //std::cout<<2<<std::endl;
+    }
+    else if(_z2<0&&_x2<0){
+        moto_to_yaw-=M_PI;
+        //std::cout<<3<<std::endl;
+    }
 
-//   else if(_z2>0&&_x2<0){
-//       //moto_to_yaw+=6.28;
-//       std::cout<<4<<std::endl;
-//   }
-//    else{
-//        std::cout<<1<<std::endl;
-//    }
+   else if(_z2>0&&_x2<0){
+       moto_to_yaw-=M_PI*2;
+       //std::cout<<4<<std::endl;
+   }
+    else{
+        //std::cout<<1<<std::endl;
+    }
 
    //std::cout<<"moto_to_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_to_yaw*(180.0/M_PI)<<std::endl;
 
 
-    moto_move_yaw=(moto_to_yaw/*+moto_yaw*/);
-    moto_move_yaw*=(180.0/M_PI);//已转成角度制//符号协商
+    moto_move_yaw=(moto_to_yaw-moto_yaw);
+    moto_move_yaw*=-(180.0/M_PI);//已转成角度制//符号协商
     //std::cout<<"moto_move_yaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<moto_move_yaw<<std::endl;
 
-//    if(abs(moto_move_yaw)>340.0){
-//        //std::cout<<"moto_move_yaw error!!!!!!!!"<<std::endl;
-//        moto_move_yaw=-moto_move_yaw/abs(moto_move_yaw)*360.0+moto_move_yaw;
-//    }
-//    moto_move_yaw=0;
+    if(abs(moto_move_yaw)>340.0){
+        //std::cout<<"moto_move_yaw error!!!!!!!!"<<std::endl;
+        moto_move_yaw=-moto_move_yaw/abs(moto_move_yaw)*360.0+moto_move_yaw;
+    }
     //需要相机和电机的位置,不懂就去翻机械原理！！！(或者理论力学动力学部分)
 }
 void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, Eigen::Vector3d tvec, Eigen::Vector3d rvec,Eigen::Vector3d &moto_tvec)
@@ -331,6 +330,8 @@ void AngleSolver::coordinary_transformation(double moto_pitch, double moto_yaw, 
     camera_tvec<<xc,yc,zc;
 
     moto_tvec=camera_tvec + rotationMatrix2*rotationMatrix1*tvec;
+
+
     //moto_tvec<<tvec(0,0),-tvec(1,0),tvec(2,0);
 
 
